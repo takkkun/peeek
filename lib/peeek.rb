@@ -71,7 +71,7 @@ class Peeek
   # @return [Peeek::Calls] calls to the methods that the registered hooks
   #   captured
   def calls
-    Calls.new(@hooks.map(&:calls).inject(&:+))
+    Calls.new(@hooks.map(&:calls).inject([], &:+))
   end
 
   # Register a hook to methods of an object.
