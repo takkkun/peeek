@@ -29,10 +29,10 @@ targets = {
   $stdout => [:puts, '.hoge']
 }
 
-path = ARGV.first
+path = ARGV.shift
 
 original_stdout = $stdout
-$stdout = StringIO.new # for have not print to the standard output
+# $stdout = StringIO.new # for have not print to the standard output
 
 calls = begin
           Peeek.capture(targets) do
@@ -61,3 +61,23 @@ load path
 
 puts calls
 
+puts Peeek.current.hooks
+
+$stdout.peeek(:puts, :babab)
+
+$stdout.puts("HOGE")
+
+Peeek.local do
+  $stdout.peeek(:puts)
+  Kernel.peeek('.puts', '.pp')
+  puts 'Global:'
+  puts Peeek.global.hooks
+  puts
+  puts 'Local:'
+  puts Peeek.current.hooks
+  puts
+end
+
+puts Peeek.current.hooks
+
+# puts $peeek.hooks

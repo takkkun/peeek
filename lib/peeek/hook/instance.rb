@@ -1,35 +1,37 @@
-require 'peeek/hook/base'
+require 'peeek/hook/linker'
 
 class Peeek
-  module Hook
-    class Instance < Base
-      @method_prefix = '#'
+  class Hook
+    class Instance < Linker
 
-      def initialize(object, method_name)
-        super
-        raise ArgumentError, '' unless Hook.module?(object)
+      # @attribute [r] method_prefix
+      # @return [String] method prefix for instance method. return always "#"
+      def method_prefix
+        '#'
       end
 
+      # Determine if the instance method is defined in the object.
+      #
+      # @return whether the instance method is defined in the object
       def defined?
-        object.method_defined?(method_name)
+        @object.method_defined?(@method_name)
       end
 
-      protected
-
-      def enforce
-        call = method(:call)
-
-        object.instance_method(method_name).tap do |original_method|
+      # Link the hook to the instance method.
+      def link
+        @object.instance_method(@method_name).tap do |original_method|
           define_method do |*args|
-            call[self, caller, args]
+            yield caller, self, args
             original_method.bind(self)[*args]
           end
         end
       end
 
-      def revert(original_method)
+      # Unlink the hook from the instance method.
+      def unlink(original_method)
         define_method(original_method)
       end
+
     end
   end
 end
