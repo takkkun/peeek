@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'peeek'
   spec.version       = Peeek::VERSION
   spec.authors       = ['Takahiro Kondo']
-  spec.email         = ['kondo@atedesign.net']
+  spec.email         = ['heartery@gmail.com']
   spec.description   = %q{TODO: Write a gem description}
   spec.summary       = %q{TODO: Write a gem summary}
   spec.homepage      = ''
