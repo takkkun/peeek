@@ -21,7 +21,7 @@ class Peeek
     #   # Can't hook to the instance method if the object is an instance of any
     #   # class.
     #   Peeek::Hook.create($stdout, '#puts')
-    #     # => raise #<ArgumentError: TODO>
+    #     # => raise #<ArgumentError: can't create a hook of instance method to an instance of any class>
     #
     # @example Hook to an singleton method
     #   Peeek::Hook.create($stdout, '.puts')
