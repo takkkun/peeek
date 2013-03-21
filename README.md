@@ -22,15 +22,15 @@ Or install it yourself as:
 
     peeek = Peeek.new
 
-    peeek.define(String => :to_s) do |call|
+    peeek.hook(String, :to_s) do |call|
       p call.receiver
     end
 
     '1'.to_s # => "1"
     '2'.to_s # => "2"
 
-    puts peeek.calls # => "1" received String#to_s() in peeek-example.rb at 6
-                     # => "2" received String#to_s() in peeek-example.rb at 7
+    puts peeek.calls # => #<Peeek::Hook String#to_s (linked)> from "1" in peeek-example.rb at 9
+                     # => #<Peeek::Hook String#to_s (linked)> from "2" in peeek-example.rb at 10
 
 ## Contributing
 
