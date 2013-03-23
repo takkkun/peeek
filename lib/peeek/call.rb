@@ -10,8 +10,7 @@ class Peeek
     def initialize(hook, backtrace, receiver, arguments)
       @hook = hook
       @backtrace = backtrace
-      @file, line = backtrace.first.split(':')
-      @line = line.to_i
+      @file, @line = extract_file_and_line(backtrace.first)
       @receiver = receiver
       @arguments = arguments
     end
@@ -56,6 +55,12 @@ class Peeek
     end
 
     private
+
+    def extract_file_and_line(string)
+      _, file, line = /^(.+):(\d+)(?::in\s+|$)/.match(string).to_a
+      raise ArgumentError, 'invalid as string of backtrace' unless file and line
+      [file, line.to_i]
+    end
 
     def pretty(value)
       case value
