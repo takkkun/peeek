@@ -11,10 +11,10 @@ class Peeek
 
     # Filter the calls by line number.
     #
-    # @param [Number] line line number
+    # @param [Number, Range<Number>] line line number or range of lines
     # @return [Peeek::Calls] filtered calls
     def at(line)
-      Calls.new(select { |call| call.line == line })
+      Calls.new(select { |call| line === call.line })
     end
 
     # Filter the calls by a receiver.
