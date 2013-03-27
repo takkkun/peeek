@@ -167,8 +167,9 @@ class Peeek
     end
     singleton_class.instance_eval { private :parse }
 
-    def call(backtrace, receiver, args)
-      call = Call.new(self, backtrace, receiver, args)
+    def call(backtrace, receiver, method, args)
+      result = Call::ReturnValue.new(method[*args]) rescue Call::Exception.new($!)
+      call = Call.new(self, backtrace, receiver, args, result)
       @calls << call
       @process[call] if @process
     end

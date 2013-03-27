@@ -7,12 +7,15 @@ class Peeek
     # @param [Array<String>] backtrace backtrace the call occurred
     # @param [Module, Class, Object] receiver object that received the call
     # @param [Array] arguments arguments at the call
-    def initialize(hook, backtrace, receiver, arguments)
+    # @param [Peeek::Call::Result] result result of the call
+    def initialize(hook, backtrace, receiver, arguments, result)
+      raise ArgumentError, 'invalid as result' unless result.is_a?(Result)
       @hook = hook
       @backtrace = backtrace
       @file, @line = extract_file_and_line(backtrace.first)
       @receiver = receiver
       @arguments = arguments
+      @result = result
     end
 
     # @attribute [r] hook
@@ -39,6 +42,38 @@ class Peeek
     # @return [Array] arguments at the call
     attr_reader :arguments
 
+    # @attribute [r] result
+    # @return [Peeek::Call::Result] result of the call
+    attr_reader :result
+
+    # @attribute [r] return_value
+    # @return [Object] value that the call returned
+    def return_value
+      raise TypeError, "the call didn't return a value" unless returned?
+      @result.value
+    end
+
+    # @attribute [r] exception
+    # @return [StandardError] exception that raised from the call
+    def exception
+      raise TypeError, "the call didn't raised an exception" unless raised?
+      @result.value
+    end
+
+    # Determine if the result is a return value.
+    #
+    # @return whether the result is a return value
+    def returned?
+      @result.is_a?(ReturnValue)
+    end
+
+    # Determine if the result is an exception.
+    #
+    # @return whether the result is an exception
+    def raised?
+      @result.is_a?(Exception)
+    end
+
     def to_s
       parts = [@hook.to_s]
       parts << "from #{@receiver.inspect}"
@@ -47,6 +82,12 @@ class Peeek
         parts << "with #{pretty(@arguments.first)}"
       elsif @arguments.size > 1
         parts << "with (#{@arguments.map(&method(:pretty)) * ', '})"
+      end
+
+      if returned?
+        parts << "returned #{pretty(return_value)}"
+      elsif raised?
+        parts << "raised #{exception.inspect}"
       end
 
       parts << "in #{@file}"
@@ -74,6 +115,33 @@ class Peeek
         value.inspect
       end
     end
+
+    class Result
+
+      # Initialize the result.
+      #
+      # @param [Object] value value of the result
+      def initialize(value)
+        @value = value
+      end
+
+      # @attribute [r] value
+      # @return [Object] value of the result
+      attr_reader :value
+
+      def ==(other)
+        self.class == other.class && @value == other.value
+      end
+      alias eql? ==
+
+      def hash
+        (self.class.hash << 32) + @value.hash
+      end
+
+    end
+
+    class ReturnValue < Result; end
+    class Exception < Result; end
 
   end
 end

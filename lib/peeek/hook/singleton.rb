@@ -21,8 +21,7 @@ class Peeek
       def link
         @object.method(@method_name).tap do |original_method|
           define_method do |*args|
-            yield caller, self, args
-            original_method[*args]
+            yield caller, self, original_method, args
           end
         end
       end
