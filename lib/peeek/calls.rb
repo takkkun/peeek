@@ -25,5 +25,19 @@ class Peeek
       Calls.new(select { |call| call.receiver == receiver })
     end
 
+    # Filter only the calls that a value returned.
+    #
+    # @return [Peeek::Calls] filtered calls
+    def return_values
+      Calls.new(select(&:returned?))
+    end
+
+    # Filter only the calls that an exception raised.
+    #
+    # @return [Peeek::Calls] filtered calls
+    def exceptions
+      Calls.new(select(&:raised?))
+    end
+
   end
 end
