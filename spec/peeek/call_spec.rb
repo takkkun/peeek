@@ -1,14 +1,22 @@
 require 'peeek/call'
 
-def sample_backtrace
-  ["koyomi.rb:7:in `print'", "koyomi.rb:21:in `<main>'"]
-end
-
 def sample_call(attrs = {})
   hook   = attrs[:hook] || stub('Peeek::Hook', :to_s => 'String#%')
   args   = attrs[:args] || ['Koyomi', 17]
   result = attrs[:result] || Peeek::Call::ReturnValue.new('Koyomi (17)')
   Peeek::Call.new(hook, sample_backtrace, '%s (%d)', args, result)
+end
+
+def sample_backtrace
+  ["koyomi.rb:7:in `print'", "koyomi.rb:21:in `<main>'"]
+end
+
+def sample_return_value
+  Peeek::Call::ReturnValue.new(:return_value)
+end
+
+def sample_exception
+  Peeek::Call::Exception.new(:exception)
 end
 
 describe Peeek::Call, '#initialize' do
@@ -62,7 +70,7 @@ end
 
 describe Peeek::Call, '#result' do
   it 'returns the value when constructed the call' do
-    result = Peeek::Call::ReturnValue.new(:value)
+    result = sample_return_value
     call = sample_call(:result => result)
     call.result.should == result
   end
@@ -70,48 +78,48 @@ end
 
 describe Peeek::Call, '#return_value' do
   it 'returns value of the result' do
-    call = sample_call(:result => Peeek::Call::ReturnValue.new(:value))
-    call.return_value.should == :value
+    call = sample_call(:result => sample_return_value)
+    call.return_value.should == :return_value
   end
 
   it 'raises TypeError if the call is raised an exception' do
-    call = sample_call(:result => Peeek::Call::Exception.new(:value))
+    call = sample_call(:result => sample_exception)
     lambda { call.return_value }.should raise_error(TypeError, "the call didn't return a value")
   end
 end
 
 describe Peeek::Call, '#exception' do
   it 'returns value of the result' do
-    call = sample_call(:result => Peeek::Call::Exception.new(:value))
-    call.exception.should == :value
+    call = sample_call(:result => sample_exception)
+    call.exception.should == :exception
   end
 
   it 'raises TypeError if the call returned a value' do
-    call = sample_call(:result => Peeek::Call::ReturnValue.new(:value))
+    call = sample_call(:result => sample_return_value)
     lambda { call.exception }.should raise_error(TypeError, "the call didn't raised an exception")
   end
 end
 
 describe Peeek::Call, '#returned?' do
   it 'is true if the call returned a value' do
-    call = sample_call(:result => Peeek::Call::ReturnValue.new(:value))
+    call = sample_call(:result => sample_return_value)
     call.should be_returned
   end
 
   it 'is false if the call is raised an exception' do
-    call = sample_call(:result => Peeek::Call::Exception.new(:value))
+    call = sample_call(:result => sample_exception)
     call.should_not be_returned
   end
 end
 
 describe Peeek::Call, '#raised?' do
   it 'is true if the call is raised an exception' do
-    call = sample_call(:result => Peeek::Call::Exception.new(:value))
+    call = sample_call(:result => sample_exception)
     call.should be_raised
   end
 
   it 'is false if the call returned a value' do
-    call = sample_call(:result => Peeek::Call::ReturnValue.new(:value))
+    call = sample_call(:result => sample_return_value)
     call.should_not be_raised
   end
 end
@@ -140,15 +148,79 @@ describe Peeek::Call, '#to_s' do
 
   context 'with a return value result' do
     it 'returns the stringified call' do
-      call = sample_call(:result => Peeek::Call::ReturnValue.new(:return_value))
+      call = sample_call(:result => sample_return_value)
       call.to_s.should == 'String#% from "%s (%d)" with ("Koyomi", 17) returned :return_value in koyomi.rb at 7'
     end
   end
 
   context 'with an exception result' do
     it 'returns the stringified call' do
-      call = sample_call(:result => Peeek::Call::Exception.new(:exception))
+      call = sample_call(:result => sample_exception)
       call.to_s.should == 'String#% from "%s (%d)" with ("Koyomi", 17) raised :exception in koyomi.rb at 7'
     end
+  end
+end
+
+describe Peeek::Call::ReturnValue do
+  it 'inhertis Peeek::Call::Result' do
+    result = described_class.allocate
+    result.should be_a(Peeek::Call::Result)
+  end
+
+  it 'identifies as key in a hash' do
+    hash = {sample_return_value => :return_value}
+    hash.should     be_key(sample_return_value)
+    hash.should_not be_key(sample_exception)
+    hash.should_not be_key(described_class.new(:other_return_value))
+    hash.should_not be_key(Peeek::Call::Exception.new(:return_value))
+  end
+end
+
+describe Peeek::Call::ReturnValue, '#value' do
+  it 'returns the value when constructed the result' do
+    result = sample_return_value
+    result.value.should == :return_value
+  end
+end
+
+describe Peeek::Call::ReturnValue, '#==' do
+  it 'verifies equivalency' do
+    result = sample_return_value
+    result.should     == sample_return_value
+    result.should_not == sample_exception
+    result.should_not == described_class.new(:other_return_value)
+    result.should_not == Peeek::Call::Exception.new(:return_value)
+  end
+end
+
+describe Peeek::Call::Exception do
+  it 'inhertis Peeek::Call::Result' do
+    result = described_class.allocate
+    result.should be_a(Peeek::Call::Result)
+  end
+
+  it 'identifies as key in a hash' do
+    hash = {sample_exception => :exception}
+    hash.should     be_key(sample_exception)
+    hash.should_not be_key(sample_return_value)
+    hash.should_not be_key(described_class.new(:other_exception))
+    hash.should_not be_key(Peeek::Call::ReturnValue.new(:exception))
+  end
+end
+
+describe Peeek::Call::Exception, '#value' do
+  it 'returns the value when constructed the result' do
+    result = sample_exception
+    result.value.should == :exception
+  end
+end
+
+describe Peeek::Call::Exception, '#==' do
+  it 'verifies equivalency' do
+    result = sample_exception
+    result.should     == sample_exception
+    result.should_not == sample_return_value
+    result.should_not == described_class.new(:other_exception)
+    result.should_not == Peeek::Call::ReturnValue.new(:exception)
   end
 end
