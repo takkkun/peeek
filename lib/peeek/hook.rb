@@ -141,9 +141,14 @@ class Peeek
     end
 
     def to_s
-      method_expr = "#{@object.inspect}#{@linker.method_prefix}#{@method_name}"
-      method_expr << ' (linked)' if linked?
-      "#<#{self.class} #{method_expr}>"
+      @object.inspect + @linker.method_prefix + @method_name.to_s
+    end
+
+    def inspect
+      state = []
+      state << 'linked' if linked?
+      state_string = state.empty? ? '' : " (#{state * ', '})"
+      "#<#{self.class} #{self}#{state_string}>"
     end
 
     private
