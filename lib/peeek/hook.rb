@@ -1,13 +1,10 @@
 require 'peeek/hook/instance'
 require 'peeek/hook/singleton'
-require 'peeek/hook/verdict'
 require 'peeek/call'
 require 'peeek/calls'
 
 class Peeek
   class Hook
-    extend Verdict
-    include Verdict
 
     # Create a hook to method of an object. The hook can apply to a instance
     # method or a singleton method.
@@ -46,6 +43,22 @@ class Peeek
       new(object, method_name, linker_class, &process)
     end
 
+    # Determine if an object is a module or a class.
+    #
+    # @param [Module, Class, Object] object an object
+    # @return whether an object is a module or a class
+    def self.any_module?(object)
+      object.class == Module || object.class == Class
+    end
+
+    # Determine if an object is an instance of any class.
+    #
+    # @param [Module, Class, Object] object an object
+    # @return whether an object is an instance of any class
+    def self.any_instance?(object)
+      !any_module?(object)
+    end
+
     # Initialize the hook.
     #
     # @param [Module, Class, Object] object a target object that hook
@@ -60,7 +73,7 @@ class Peeek
       @linker = linker_class.new(object, method_name)
       @process = process
       @calls = Calls.new
-      raise ArgumentError, "can't create a hook of instance method to an instance of any class" if any_instance?(object) and instance?
+      raise ArgumentError, "can't create a hook of instance method to an instance of any class" if self.class.any_instance?(object) and instance?
     end
 
     # @attribute [r] object

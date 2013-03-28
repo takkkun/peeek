@@ -1,10 +1,6 @@
-require 'peeek/hook/verdict'
-
 class Peeek
   class Hook
     class Linker
-      include Verdict
-
       @classes = []
 
       class << self
