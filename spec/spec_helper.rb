@@ -33,3 +33,17 @@ def call_stub(result, attrs = {})
 
   stub('Peeek::Call', attrs)
 end
+
+def supervised?(object)
+  supervised_by?(object, :method_added) or supervised_by?(object, :singleton_method_added)
+end
+
+def supervised_by?(object, callback_name)
+  source_location = object.method(callback_name).source_location
+  !!(source_location && source_location[0].include?('lib/peeek/supervisor.rb'))
+end
+
+def one_or_more(array)
+  array.should_not be_empty
+  array
+end

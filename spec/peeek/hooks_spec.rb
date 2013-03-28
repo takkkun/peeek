@@ -1,3 +1,4 @@
+require 'spec_helper'
 require 'peeek/hooks'
 
 def sample_hooks
@@ -39,27 +40,17 @@ describe Peeek::Hooks, '#clear' do
   it 'unlinks the hooks from the methods' do
     hooks = sample_hooks
     original_hooks = hooks.dup
-
-    # assert
-    original_hooks.should_not be_empty
-    original_hooks.should be_any { |hook|  hook.linked? }
-
+    one_or_more(original_hooks).should be_any { |hook|  hook.linked? } # assert
     hooks.clear
-    original_hooks.should_not be_empty
-    original_hooks.should be_all { |hook| !hook.linked? }
+    one_or_more(original_hooks).should be_all { |hook| !hook.linked? }
   end
 
   it 'clears calls of the hooks' do
     hooks = sample_hooks
     original_hooks = hooks.dup
-
-    # assert
-    original_hooks.should_not be_empty
-    original_hooks.should be_any { |hook| !hook.calls.empty? }
-
+    one_or_more(original_hooks).should be_any { |hook| !hook.calls.empty? } # assert
     hooks.clear
-    original_hooks.should_not be_empty
-    original_hooks.should be_all { |hook|  hook.calls.empty? }
+    one_or_more(original_hooks).should be_all { |hook|  hook.calls.empty? }
   end
 
   it 'clears the hooks' do
@@ -79,8 +70,7 @@ describe Peeek::Hooks, '#circumvent' do
     hooks = sample_hooks
 
     hooks.circumvent do
-      hooks.should_not be_empty
-      hooks.should be_all { |hook| !hook.linked? }
+      one_or_more(hooks).should be_all { |hook| !hook.linked? }
     end
   end
 
@@ -88,18 +78,11 @@ describe Peeek::Hooks, '#circumvent' do
     hooks = sample_hooks
     linked_hooks = hooks.select(&:linked?)
     unlinked_hooks = hooks.reject(&:linked?)
-
-    # assert
-    linked_hooks.should_not be_empty
-    linked_hooks.should be_all { |hook| hook.linked? }
-    unlinked_hooks.should_not be_empty
-    unlinked_hooks.should be_all { |hook| !hook.linked? }
-
+    one_or_more(linked_hooks).should be_all { |hook| hook.linked? } # assert
+    one_or_more(unlinked_hooks).should be_all { |hook| !hook.linked? } # assert
     hooks.circumvent { }
-    linked_hooks.should_not be_empty
-    linked_hooks.should be_all { |hook| hook.linked? }
-    unlinked_hooks.should_not be_empty
-    unlinked_hooks.should be_all { |hook| !hook.linked? }
+    one_or_more(linked_hooks).should be_all { |hook| hook.linked? }
+    one_or_more(unlinked_hooks).should be_all { |hook| !hook.linked? }
   end
 
   it 'raises ArgumentError if a block not given' do
