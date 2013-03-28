@@ -159,11 +159,14 @@ class Peeek
     end
     singleton_class.instance_eval { private :parse }
 
-    def call(backtrace, receiver, method, args)
+    def call(backtrace, receiver, args)
+      method = @original_method.is_a?(UnboundMethod) ? @original_method.bind(receiver) : @original_method
       result = Call::ReturnValue.new(method[*args]) rescue Call::Exception.new($!)
       call = Call.new(self, backtrace, receiver, args, result)
       @calls << call
       @process[call] if @process
+      raise call.exception if call.raised?
+      call.return_value
     end
 
   end

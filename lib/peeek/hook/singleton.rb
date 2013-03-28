@@ -19,12 +19,18 @@ class Peeek
       end
 
       # Link the hook to the method.
+      #
+      # @yield [backtrace, receiver, args] callback for hook
+      # @yieldparam [Array<String>] backtrace backtrace the call occurred
+      # @yieldparam [Object] receiver object that received the call
+      # @yieldparam [Array] args arguments at the call
+      # @yieldreturn [Object] return value of the original method
+      # @return [Method] original method
       def link
-        @object.method(@method_name).tap do |original_method|
-          define_method do |*args|
-            yield caller, self, original_method, args
-          end
-        end
+        raise ArgumentError, 'block not supplied' unless block_given?
+        original_method = @object.method(@method_name)
+        define_method { |*args| yield caller, self, args }
+        original_method
       end
 
       # Unlink the hook from the method.
