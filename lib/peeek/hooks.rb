@@ -7,8 +7,8 @@ class Peeek
     # @param [Symbol] method_name method name of a hook to get. get only the
     #   hook by the object if omitted
     # @return [Peeek::Hook] a hook to be got
-    # @return [nil] if don't exist a hook that correspond to the object and the
-    #   method name
+    # @return [nil] if a hook that corresponds to the object and the method name
+    #   doesn't exist
     def get(object, method_name = nil)
       if method_name.nil?
         find { |hook| hook.object == object }
@@ -25,7 +25,7 @@ class Peeek
 
     # Run process while circumvent the hooks.
     #
-    # @yield any process that want to run while circumvent the hooks
+    # @yield any process that wants to run while circumvent the hooks
     def circumvent
       raise ArgumentError, 'block not supplied' unless block_given?
 
