@@ -37,7 +37,7 @@ describe Peeek::Hook::Instance, '#link' do
     block_args = nil
     @linker.link { |*args| block_args = args }
     '%s (%d)' % ['Koyomi', 17]
-    block_args[0][0].should =~ %r(spec/peeek/hook/instance_spec.rb)
+    block_args[0][0].should =~ %r(spec/peeek/hook/instance_spec\.rb)
     block_args[1].should == '%s (%d)'
     block_args[2].should == [['Koyomi', 17]]
   end

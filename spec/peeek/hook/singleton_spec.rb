@@ -37,7 +37,7 @@ describe Peeek::Hook::Singleton, '#link' do
     block_args = nil
     @linker.link { |*args| block_args = args }
     Regexp.quote('.')
-    block_args[0][0].should =~ %r(spec/peeek/hook/singleton_spec.rb)
+    block_args[0][0].should =~ %r(spec/peeek/hook/singleton_spec\.rb)
     block_args[1].should == Regexp
     block_args[2].should == ['.']
   end
