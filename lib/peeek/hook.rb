@@ -37,8 +37,8 @@ class Peeek
     #
     # @param [Module, Class, Object] object a target object that hook
     # @param [String, Symbol] method_spec method specification of the object
-    # @yield process a call to the method. give optionally
-    # @yieldparam [Peeek::Call] a call to the method
+    # @yield [call] process a call to the method. give optionally
+    # @yieldparam [Peeek::Call] call a call to the method
     # @return [Peeek::Hook] a hook to the method of the object
     def self.create(object, method_spec, &process)
       linker_class, method_name = parse(method_spec)
@@ -51,8 +51,8 @@ class Peeek
     # @param [Module, Class, Object] object a target object that hook
     # @param [Symbol] method_name method name of the object
     # @param [Class] linker_class class of an object to link the hook
-    # @yield process a call to the method. give optionally
-    # @yieldparam [Peeek::Call] a call to the method
+    # @yield [call] process a call to the method. give optionally
+    # @yieldparam [Peeek::Call] call a call to the method
     def initialize(object, method_name, linker_class, &process)
       raise ArgumentError, "invalid as linker class, #{Linker.classes.join(' or ')} are valid" unless Linker.classes.include?(linker_class)
       @object = object

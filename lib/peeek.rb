@@ -79,8 +79,8 @@ class Peeek
   # @param [Module, Class, Object] object a target object that hook
   # @param [Array<String>, Array<Symbol>] method_specs method specifications of
   #   the object. see also examples of {Peeek::Hook.create}
-  # @yield process a call to the methods. give optionally
-  # @yieldparam [Peeek::Call] a call to the methods
+  # @yield [call] process a call to the methods. give optionally
+  # @yieldparam [Peeek::Call] call a call to the methods
   # @return [Peeek::Hooks] the registered hooks at the call
   #
   # @see Peeek::Hook.create
@@ -129,8 +129,8 @@ class Peeek
     #
     # @param [Array<String>, Array<Symbol>] method_specs method specifications
     #   of the object. see also examples of {Peeek::Hook.create}
-    # @yield process a call to the methods. give optionally
-    # @yieldparam [Peeek::Call] a call to the methods
+    # @yield [call] process a call to the methods. give optionally
+    # @yieldparam [Peeek::Call] call a call to the methods
     #
     # @see Peeek#hook
     def peeek(*method_specs, &process)
