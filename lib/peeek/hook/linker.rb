@@ -1,8 +1,10 @@
-require 'peeek/hook'
+require 'peeek/hook/verdict'
 
 class Peeek
   class Hook
     class Linker
+      include Verdict
+
       @classes = []
 
       class << self
@@ -29,7 +31,7 @@ class Peeek
       protected
 
       def define_method(*args, &block)
-        object = Hook.any_instance?(@object) ? @object.singleton_class : @object
+        object = any_instance?(@object) ? @object.singleton_class : @object
         object.__send__(:define_method, @method_name, *args, &block)
       end
 
