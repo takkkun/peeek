@@ -28,13 +28,6 @@ class Peeek
         @method_name = method_name
       end
 
-      protected
-
-      def define_method(*args, &block)
-        object = any_instance?(@object) ? @object.singleton_class : @object
-        object.__send__(:define_method, @method_name, *args, &block)
-      end
-
     end
   end
 end

@@ -40,6 +40,12 @@ class Peeek
         define_method(original_method)
       end
 
+      private
+
+      def define_method(*args, &block)
+        @object.__send__(:define_method, @method_name, *args, &block)
+      end
+
     end
   end
 end

@@ -34,8 +34,16 @@ class Peeek
       end
 
       # Unlink the hook from the method.
+      #
+      # @param [Method] original_method original method
       def unlink(original_method)
         define_method(&original_method)
+      end
+
+      private
+
+      def define_method(&block)
+        @object.singleton_class.__send__(:define_method, @method_name, &block)
       end
 
     end
