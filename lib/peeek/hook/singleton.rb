@@ -3,11 +3,12 @@ require 'peeek/hook/linker'
 class Peeek
   class Hook
     class Singleton < Linker
+      METHOD_PREFIX = '.'.freeze
 
       # @attribute [r] method_prefix
       # @return [String] method prefix for singleton method. return always "."
       def method_prefix
-        '.'
+        METHOD_PREFIX
       end
 
       # Determine if the method is defined in the object.

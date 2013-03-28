@@ -1,3 +1,5 @@
+require 'peeek/hook'
+
 class Peeek
   class Hook
     class Linker

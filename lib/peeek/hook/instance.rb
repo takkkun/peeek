@@ -3,11 +3,12 @@ require 'peeek/hook/linker'
 class Peeek
   class Hook
     class Instance < Linker
+      METHOD_PREFIX = '#'.freeze
 
       # @attribute [r] method_prefix
       # @return [String] method prefix for instance method. return always "#"
       def method_prefix
-        '#'
+        METHOD_PREFIX
       end
 
       # Determine if the instance method is defined in the object.
