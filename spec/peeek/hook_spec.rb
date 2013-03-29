@@ -4,14 +4,73 @@ require 'peeek/hook'
 def sample_instance_hook(linker = nil)
   Peeek::Hook.create(String, :%).tap do |hook|
     hook.instance_variable_set(:@linker, linker) if linker
+    hook.instance_variable_set(:@calls, Array.new(5))
   end
 end
 
-def sample_singleton_hook
-  Peeek::Hook.create($stdout, :write)
+def sample_singleton_hook(linker = nil)
+  Peeek::Hook.create($stdout, :write).tap do |hook|
+    hook.instance_variable_set(:@linker, linker) if linker
+    hook.instance_variable_set(:@calls, Array.new(4))
+  end
 end
 
 describe Peeek::Hook, '.create' do
+  it "returns an instance of #{described_class}" do
+    hook = sample_instance_hook
+    hook.should be_a(described_class)
+  end
+
+  it "returns a hook that corresponds to the object and the method name" do
+    hook = sample_instance_hook
+    hook.object.should == String
+    hook.method_name.should == :%
+  end
+
+  context 'when specify implicitly' do
+    it 'returns a hook to instance method if given any module or any class' do
+      hook = described_class.create(String, :%)
+      hook.object.should == String
+      hook.method_name.should == :%
+      hook.should be_instance
+    end
+
+    it 'returns a hook to singleton method if given any instance' do
+      hook = described_class.create($stdout, :write)
+      hook.object.should == $stdout
+      hook.method_name.should == :write
+      hook.should be_singleton
+    end
+  end
+
+  context 'when specify instance method expressly' do
+    it 'returns a hook to instance method if given any module or any class' do
+      hook = described_class.create(String, '#%')
+      hook.object.should == String
+      hook.method_name.should == :%
+      hook.should be_instance
+    end
+
+    it 'raises ArgumentError if given any instance' do
+      lambda { described_class.create($stdout, '#write') }.should raise_error(ArgumentError, "can't create a hook of instance method to an instance of any class")
+    end
+  end
+
+  context 'when specify singleton method expressly' do
+    it 'returns a hook to singleton method if given any module or any class' do
+      hook = described_class.create(String, '.new')
+      hook.object.should == String
+      hook.method_name.should == :new
+      hook.should be_singleton
+    end
+
+    it 'returns a hook to singleton method if given any instance' do
+      hook = described_class.create($stdout, '.write')
+      hook.object.should == $stdout
+      hook.method_name.should == :write
+      hook.should be_singleton
+    end
+  end
 end
 
 describe Peeek::Hook, '.any_module?' do
@@ -43,30 +102,115 @@ describe Peeek::Hook, '.any_instance?' do
 end
 
 describe Peeek::Hook, '#initialize' do
+  it 'raises ArgumentError if the linker class is invalid' do
+    lambda { described_class.new(String, :%, String) }.should raise_error(ArgumentError, 'invalid as linker class, Peeek::Hook::Instance or Peeek::Hook::Singleton are valid')
+  end
 end
 
 describe Peeek::Hook, '#object' do
+  it 'returns the value when constructed the hook' do
+    hook = described_class.new(String, :%, Peeek::Hook::Instance)
+    hook.object.should == String
+  end
 end
 
 describe Peeek::Hook, '#method_name' do
+  it 'returns the value when constructed the hook' do
+    hook = described_class.new(String, :%, Peeek::Hook::Instance)
+    hook.method_name.should == :%
+  end
 end
 
 describe Peeek::Hook, '#instance?' do
+  it 'is true if the hook is for instance method' do
+    hook = sample_instance_hook
+    hook.should be_instance
+  end
+
+  it 'is false if the hook is for singleton method' do
+    hook = sample_singleton_hook
+    hook.should_not be_instance
+  end
 end
 
 describe Peeek::Hook, '#singleton?' do
+  it 'is true if the hook is for singleton method' do
+    hook = sample_singleton_hook
+    hook.should be_singleton
+  end
+
+  it 'is false if the hook is for instance method' do
+    hook = sample_instance_hook
+    hook.should_not be_singleton
+  end
 end
 
 describe Peeek::Hook, '#defined?' do
-end
+  before do
+    @linker, original_method = instance_linker_stub(String, :%)
+    @hook = sample_instance_hook(@linker)
+  end
 
-describe Peeek::Hook, '#linked?' do
+  it "calls #{described_class}::Linker#defined?" do
+    @linker.should_receive(:defined?)
+    @hook.defined?
+  end
+
+  it "returns return value from #{described_class}::Linker#defined?" do
+    @linker.stub!(:defined? => true)
+    return_value = @hook.defined?
+    return_value.should == true
+  end
 end
 
 describe Peeek::Hook, '#link' do
+  before do
+    @linker, @original_method = instance_linker_stub(String, :%)
+    @hook = sample_instance_hook(@linker)
+  end
+
+  after do
+    @hook.unlink
+  end
+
+  it "calls #{described_class}::Linker#link with the block" do
+    @linker.should_receive(:link).with { }.and_return do |&block|
+      block.arity.should == 3
+      @original_method
+    end
+
+    @hook.link
+  end
+
+  it 'links the hook to the method' do
+    @hook.should_not be_linked # assert
+    @hook.link
+    @hook.should be_linked
+  end
+
   it 'returns self' do
-    hook = sample_instance_hook
-    hook.link.should be_equal(hook)
+    @hook.link.should be_equal(@hook)
+  end
+
+  context 'in linked' do
+    before do
+      @linker, original_method = instance_linker_stub(String, :%)
+      @hook = sample_instance_hook(@linker)
+      @hook.link
+    end
+
+    after do
+      @hook.unlink
+    end
+
+    it "doesn't call #{described_class}::Linker#link" do
+      @linker.should_not_receive(:link)
+      @hook.link
+    end
+
+    it 'returns self' do
+      @hook.link.should be_equal(@hook)
+    end
   end
 end
 
@@ -83,6 +227,7 @@ describe Peeek::Hook, '#unlink' do
   end
 
   it 'unlinks the hook from the method' do
+    @hook.should be_linked # assert
     @hook.unlink
     @hook.should_not be_linked
   end
@@ -93,7 +238,7 @@ describe Peeek::Hook, '#unlink' do
 
   context 'in not linked' do
     before do
-      @linker, @original_method = instance_linker_stub(String, :%)
+      @linker, original_method = instance_linker_stub(String, :%)
       @hook = sample_instance_hook(@linker)
     end
 
@@ -105,13 +250,6 @@ describe Peeek::Hook, '#unlink' do
     it 'returns self' do
       @hook.unlink.should be_equal(@hook)
     end
-  end
-end
-
-describe Peeek::Hook, '#clear' do
-  it 'returns self' do
-    hook = sample_instance_hook
-    hook.clear.should be_equal(hook)
   end
 end
 
@@ -158,6 +296,85 @@ describe Peeek::Hook, '#inspect' do
 
     it 'inspects the hook' do
       @hook.inspect.should == "#<#{described_class} String#% (linked)>"
+    end
+  end
+end
+
+describe 'recording of a call by', Peeek::Hook do
+  before do
+    @hook = Peeek::Hook.create(String, :%)
+    @hook.link
+  end
+
+  after do
+    @hook.unlink
+  end
+
+  it 'sets attributes to the call' do
+    line = __LINE__; '%s (%d)' % ['Koyomi', 17]
+    call = @hook.calls.first
+    call.file.should == __FILE__
+    call.line.should == line
+    call.receiver.should == '%s (%d)'
+    call.arguments.should == [['Koyomi', 17]]
+  end
+
+  context 'if a value returned' do
+    it 'sets the return value to the call' do
+      '%s (%d)' % ['Koyomi', 17]
+      call = @hook.calls.first
+      call.should be_returned
+      call.return_value.should == 'Koyomi (17)'
+    end
+
+    it 'returns same value when called the method' do
+      return_value = '%s (%d)' % ['Koyomi', 17]
+      call = @hook.calls.first
+      return_value.should be_equal(call.return_value)
+    end
+  end
+
+  context 'if an exception raised' do
+    it 'sets the exception to the call' do
+      '%s (%d)' % ['Koyomi'] rescue
+      call = @hook.calls.first
+      call.should be_raised
+      call.exception.should be_an(ArgumentError)
+      call.exception.message.should == 'too few arguments'
+    end
+
+    it 'raises same exception when called the method' do
+      exception = '%s (%d)' % ['Koyomi'] rescue $!
+      call = @hook.calls.first
+      exception.should be_equal(call.exception)
+    end
+
+    it 'raises the exception with valid backtrace' do
+      line = __LINE__; exception = '%s (%d)' % ['Koyomi'] rescue $!
+      exception.backtrace.first.should =~ /^#{__FILE__}:#{line}:/
+    end
+  end
+
+  context 'with a block' do
+    before do
+      @hook.unlink
+    end
+
+    it 'calls the block with the call' do
+      line = nil
+
+      hook = Peeek::Hook.create(String, :%) do |call|
+        call.file.should == __FILE__
+        call.line.should == line
+        call.receiver.should == '%s (%d)'
+        call.arguments.should == [['Koyomi', 17]]
+        call.should be_returned
+        call.return_value.should == 'Koyomi (17)'
+      end
+
+      hook.link
+      line = __LINE__; '%s (%d)' % ['Koyomi', 17]
+      hook.unlink
     end
   end
 end

@@ -132,14 +132,6 @@ class Peeek
       self
     end
 
-    # Clear calls.
-    #
-    # @see #calls
-    def clear
-      @calls.clear
-      self
-    end
-
     def to_s
       @object.inspect + @linker.method_prefix + @method_name.to_s
     end
@@ -174,7 +166,14 @@ class Peeek
 
     def call(backtrace, receiver, args)
       method = @original_method.is_a?(UnboundMethod) ? @original_method.bind(receiver) : @original_method
-      result = Call::ReturnValue.new(method[*args]) rescue Call::Exception.new($!)
+
+      result = begin
+                 Call::ReturnValue.new(method[*args])
+               rescue => e
+                 e.set_backtrace(backtrace)
+                 Call::Exception.new(e)
+               end
+
       call = Call.new(self, backtrace, receiver, args, result)
       @calls << call
       @process[call] if @process

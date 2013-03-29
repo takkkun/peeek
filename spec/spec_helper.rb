@@ -20,6 +20,12 @@ def hook_stub(attrs = {})
   end
 end
 
+def instance_linker_stub(object, method_name)
+  original_method = object.instance_method(method_name)
+  linker = stub('Peeek::Hook::Linker', :link => original_method, :unlink => nil)
+  [linker, original_method]
+end
+
 def call_stub(result, attrs = {})
   attrs = attrs.merge(
     :returned? => result == :return_value,
