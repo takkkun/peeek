@@ -1,25 +1,20 @@
 def hook_stub(attrs = {})
   stub('Peeek::Hook').tap do |s|
-    attrs[:calls]  ||= 0
-    attrs[:linked] ||= false
+    calls = Array.new(attrs[:calls] || 0)
+    linked = attrs[:linked] || false
 
     s.stub!(:object => attrs[:object])
     s.stub!(:method_name => attrs[:method_name])
-    s.stub!(:calls).and_return { Array.new(attrs[:calls]) }
-    s.stub!(:linked?).and_return { attrs[:linked] }
+    s.stub!(:calls => calls)
+    s.stub!(:linked?).and_return { linked }
 
     s.stub!(:link).and_return do
-      attrs[:linked] = true
+      linked = true
       s
     end
 
     s.stub!(:unlink).and_return do
-      attrs[:linked] = false
-      s
-    end
-
-    s.stub!(:clear).and_return do
-      attrs[:calls] = 0
+      linked = false
       s
     end
   end

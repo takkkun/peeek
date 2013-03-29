@@ -19,7 +19,11 @@ class Peeek
 
     # Clear the hooks.
     def clear
-      each { |hook| hook.unlink.clear }
+      each do |hook|
+        hook.unlink
+        hook.calls.clear
+      end
+
       super
     end
 
