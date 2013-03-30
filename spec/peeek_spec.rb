@@ -8,7 +8,7 @@ describe Peeek, '.global' do
 
   it 'returns same object' do
     peeek = described_class.global
-    described_class.global.should be_equal(peeek)
+    described_class.global.should equal(peeek)
   end
 end
 
@@ -19,7 +19,7 @@ describe Peeek, '.current' do
 
   it 'returns same object' do
     peeek = described_class.current
-    described_class.current.should be_equal(peeek)
+    described_class.current.should equal(peeek)
   end
 end
 
@@ -33,14 +33,14 @@ describe Peeek, '.local' do
     peeek = described_class.current
 
     described_class.local do
-      described_class.current.should_not be_equal(peeek)
+      described_class.current.should_not equal(peeek)
     end
   end
 
   it 'gets back the current Peeek object after calling' do
     peeek = described_class.current
     described_class.local { }
-    described_class.current.should be_equal(peeek)
+    described_class.current.should equal(peeek)
   end
 
   it 'supports nested calling' do
@@ -52,13 +52,13 @@ describe Peeek, '.local' do
       described_class.local do
         peeek3 = described_class.current
         described_class.local { }
-        described_class.current.should be_equal(peeek3)
+        described_class.current.should equal(peeek3)
       end
 
-      described_class.current.should be_equal(peeek2)
+      described_class.current.should equal(peeek2)
     end
 
-    described_class.current.should be_equal(peeek1)
+    described_class.current.should equal(peeek1)
   end
 
   it 'unlinks the hooks of the current Peeek object over the block in the block, and revokes supervision' do
@@ -272,7 +272,7 @@ describe Peeek, '#release' do
   end
 
   it 'returns self' do
-    @peeek.release.should be_equal(@peeek)
+    @peeek.release.should equal(@peeek)
   end
 end
 
