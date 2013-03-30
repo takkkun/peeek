@@ -49,11 +49,11 @@ describe Peeek::Supervisor, '#add' do
   end
 
   it 'starts supervision to the object of the hook' do
-    supervised?(Regexp).should be_false # assert
+    Regexp.should_not be_supervised_for_instance # assert
     hook = hook_stub(:object => Regexp)
     @supervisor.add(hook)
     @supervisor.original_callbacks.should be_include(Regexp)
-    supervised?(Regexp).should be_true
+    Regexp.should be_supervised_for_instance
   end
 
   it "doesn't start supervision to object that is supervising already" do
@@ -86,11 +86,11 @@ describe Peeek::Supervisor, '#clear' do
 
   it 'revokes supervision to the objects' do
     supervisor = sample_supervisor
-    supervised?(String).should be_true # assert
-    supervised?(Numeric).should be_true # assert
+    String.should be_supervised_for_instance # assert
+    Numeric.should be_supervised_for_instance # assert
     supervisor.clear
-    supervised?(String).should be_false
-    supervised?(Numeric).should be_false
+    String.should_not be_supervised_for_instance
+    Numeric.should_not be_supervised_for_instance
   end
 
   it 'returns self' do
@@ -110,17 +110,17 @@ describe Peeek::Supervisor, '#circumvent' do
 
   it 'revokes supervision to the objects in the block' do
     @supervisor.circumvent do
-      supervised?(String).should be_false
-      supervised?(Numeric).should be_false
+      String.should_not be_supervised_for_instance
+      Numeric.should_not be_supervised_for_instance
     end
   end
 
   it 'restarts supervision to the objects after calling' do
-    supervised?(String).should be_true # assert
-    supervised?(Numeric).should be_true # assert
+    String.should be_supervised_for_instance # assert
+    Numeric.should be_supervised_for_instance # assert
     @supervisor.circumvent { }
-    supervised?(String).should be_true
-    supervised?(Numeric).should be_true
+    String.should be_supervised_for_instance
+    Numeric.should be_supervised_for_instance
   end
 
   it 'raises ArgumentError if a block not given' do

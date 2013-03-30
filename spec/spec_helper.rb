@@ -35,16 +35,41 @@ def call_stub(result, attrs = {})
   stub('Peeek::Call', attrs)
 end
 
-def supervised?(object)
-  supervised_by?(object, :method_added) or supervised_by?(object, :singleton_method_added)
-end
-
-def supervised_by?(object, callback_name)
-  source_location = object.method(callback_name).source_location
-  !!(source_location && source_location[0].include?('lib/peeek/supervisor.rb'))
-end
-
 def one_or_more(array)
   array.should_not be_empty
   array
+end
+
+class SupervisionMatcher
+  def initialize(callback_name)
+    @callback_name = callback_name
+  end
+
+  def matches?(object)
+    @object = object
+    source_location = object.method(@callback_name).source_location
+    !!(source_location && source_location[0].include?('lib/peeek/supervisor.rb'))
+  end
+
+  def failure_message
+    "#{@object.inspect} should be supervised, but not supervised"
+  end
+
+  def negative_failure_message
+    "#{@object.inspect} should not be supervised, but supervised"
+  end
+
+  private
+
+  def purpose
+    {:method_added => 'instance', :singleton_method_added => 'singleton'}[@callback_name]
+  end
+end
+
+def be_supervised_for_instance
+  SupervisionMatcher.new(:method_added)
+end
+
+def be_supervised_for_singleton
+  SupervisionMatcher.new(:singleton_method_added)
 end
