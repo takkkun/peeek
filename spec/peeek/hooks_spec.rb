@@ -61,7 +61,7 @@ describe Peeek::Hooks, '#clear' do
 
   it 'returns self' do
     hooks = sample_hooks
-    hooks.clear.should be_equal(hooks)
+    hooks.clear.should equal(hooks)
   end
 end
 

@@ -189,7 +189,7 @@ describe Peeek::Hook, '#link' do
   end
 
   it 'returns self' do
-    @hook.link.should be_equal(@hook)
+    @hook.link.should equal(@hook)
   end
 
   context 'in linked' do
@@ -209,7 +209,7 @@ describe Peeek::Hook, '#link' do
     end
 
     it 'returns self' do
-      @hook.link.should be_equal(@hook)
+      @hook.link.should equal(@hook)
     end
   end
 end
@@ -233,7 +233,7 @@ describe Peeek::Hook, '#unlink' do
   end
 
   it 'returns self' do
-    @hook.unlink.should be_equal(@hook)
+    @hook.unlink.should equal(@hook)
   end
 
   context 'in not linked' do
@@ -248,7 +248,7 @@ describe Peeek::Hook, '#unlink' do
     end
 
     it 'returns self' do
-      @hook.unlink.should be_equal(@hook)
+      @hook.unlink.should equal(@hook)
     end
   end
 end
@@ -330,7 +330,7 @@ describe 'recording of a call by', Peeek::Hook do
     it 'returns same value when called the method' do
       return_value = '%s (%d)' % ['Koyomi', 18]
       call = @hook.calls.first
-      return_value.should be_equal(call.return_value)
+      return_value.should equal(call.return_value)
     end
   end
 
@@ -346,7 +346,7 @@ describe 'recording of a call by', Peeek::Hook do
     it 'raises same exception when called the method' do
       exception = '%s (%d)' % ['Koyomi'] rescue $!
       call = @hook.calls.first
-      exception.should be_equal(call.exception)
+      exception.should equal(call.exception)
     end
 
     it 'raises the exception with valid backtrace' do

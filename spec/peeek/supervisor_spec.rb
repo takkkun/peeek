@@ -60,12 +60,12 @@ describe Peeek::Supervisor, '#add' do
     hook = hook_stub(:object => String)
     original_callback = @supervisor.original_callbacks[String]
     @supervisor.add(hook)
-    @supervisor.original_callbacks[String].should be_equal(original_callback)
+    @supervisor.original_callbacks[String].should equal(original_callback)
   end
 
   it 'returns self' do
     hook = hook_stub(:object => String)
-    @supervisor.add(hook).should be_equal(@supervisor)
+    @supervisor.add(hook).should equal(@supervisor)
   end
 end
 
@@ -95,7 +95,7 @@ describe Peeek::Supervisor, '#clear' do
 
   it 'returns self' do
     supervisor = sample_supervisor
-    supervisor.clear.should be_equal(supervisor)
+    supervisor.clear.should equal(supervisor)
   end
 end
 

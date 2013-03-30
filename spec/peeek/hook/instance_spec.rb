@@ -45,7 +45,7 @@ describe Peeek::Hook::Instance, '#link' do
   it 'is return value from the block as return value from the method' do
     return_value = 'return_value'
     @linker.link { |*args| return_value }
-    ('%s (%d)' % ['Koyomi', 18]).should be_equal(return_value)
+    ('%s (%d)' % ['Koyomi', 18]).should equal(return_value)
   end
 
   it 'is exception from the block as exception from the method' do

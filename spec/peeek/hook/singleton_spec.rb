@@ -45,7 +45,7 @@ describe Peeek::Hook::Singleton, '#link' do
   it 'is return value from the block as return value from the method' do
     return_value = 'return_value'
     @linker.link { |*args| return_value }
-    Regexp.quote('.').should be_equal(return_value)
+    Regexp.quote('.').should equal(return_value)
   end
 
   it 'is exception from the block as exception from the method' do
