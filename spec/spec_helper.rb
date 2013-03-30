@@ -1,11 +1,13 @@
 def hook_stub(attrs = {})
   stub('Peeek::Hook').tap do |s|
     calls = Array.new(attrs[:calls] || 0)
+    defined = attrs[:defined] || true
     linked = attrs[:linked] || false
 
     s.stub!(:object => attrs[:object])
     s.stub!(:method_name => attrs[:method_name])
     s.stub!(:calls => calls)
+    s.stub!(:defined?).and_return { defined }
     s.stub!(:linked?).and_return { linked }
 
     s.stub!(:link).and_return do
@@ -41,35 +43,34 @@ def one_or_more(array)
 end
 
 class SupervisionMatcher
-  def initialize(callback_name)
-    @callback_name = callback_name
+  def initialize(purpose)
+    @purpose = purpose
   end
 
   def matches?(object)
     @object = object
-    source_location = object.method(@callback_name).source_location
+    callback_name = {:instance => :method_added, :singleton => :singleton_method_added}[@purpose]
+    source_location = object.method(callback_name).source_location
     !!(source_location && source_location[0].include?('lib/peeek/supervisor.rb'))
   end
 
+  def description
+    "be supervised for #{@purpose} method"
+  end
+
   def failure_message
-    "#{@object.inspect} should be supervised, but not supervised"
+    "#{@object.inspect} should be supervised for #{@purpose} method, but not supervised"
   end
 
   def negative_failure_message
-    "#{@object.inspect} should not be supervised, but supervised"
-  end
-
-  private
-
-  def purpose
-    {:method_added => 'instance', :singleton_method_added => 'singleton'}[@callback_name]
+    "#{@object.inspect} should not be supervised for #{@purpose} method, but supervised"
   end
 end
 
 def be_supervised_for_instance
-  SupervisionMatcher.new(:method_added)
+  SupervisionMatcher.new(:instance)
 end
 
 def be_supervised_for_singleton
-  SupervisionMatcher.new(:singleton_method_added)
+  SupervisionMatcher.new(:singleton)
 end
