@@ -311,24 +311,24 @@ describe 'recording of a call by', Peeek::Hook do
   end
 
   it 'sets attributes to the call' do
-    line = __LINE__; '%s (%d)' % ['Koyomi', 17]
+    line = __LINE__; '%s (%d)' % ['Koyomi', 18]
     call = @hook.calls.first
     call.file.should == __FILE__
     call.line.should == line
     call.receiver.should == '%s (%d)'
-    call.arguments.should == [['Koyomi', 17]]
+    call.arguments.should == [['Koyomi', 18]]
   end
 
   context 'if a value returned' do
     it 'sets the return value to the call' do
-      '%s (%d)' % ['Koyomi', 17]
+      '%s (%d)' % ['Koyomi', 18]
       call = @hook.calls.first
       call.should be_returned
-      call.return_value.should == 'Koyomi (17)'
+      call.return_value.should == 'Koyomi (18)'
     end
 
     it 'returns same value when called the method' do
-      return_value = '%s (%d)' % ['Koyomi', 17]
+      return_value = '%s (%d)' % ['Koyomi', 18]
       call = @hook.calls.first
       return_value.should be_equal(call.return_value)
     end
@@ -367,13 +367,13 @@ describe 'recording of a call by', Peeek::Hook do
         call.file.should == __FILE__
         call.line.should == line
         call.receiver.should == '%s (%d)'
-        call.arguments.should == [['Koyomi', 17]]
+        call.arguments.should == [['Koyomi', 18]]
         call.should be_returned
-        call.return_value.should == 'Koyomi (17)'
+        call.return_value.should == 'Koyomi (18)'
       end
 
       hook.link
-      line = __LINE__; '%s (%d)' % ['Koyomi', 17]
+      line = __LINE__; '%s (%d)' % ['Koyomi', 18]
       hook.unlink
     end
   end

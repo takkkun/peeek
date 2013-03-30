@@ -36,21 +36,21 @@ describe Peeek::Hook::Instance, '#link' do
   it 'gives appropriate arguments to the block when calling the method' do
     block_args = nil
     @linker.link { |*args| block_args = args }
-    '%s (%d)' % ['Koyomi', 17]
+    '%s (%d)' % ['Koyomi', 18]
     block_args[0][0].should =~ %r(spec/peeek/hook/instance_spec\.rb)
     block_args[1].should == '%s (%d)'
-    block_args[2].should == [['Koyomi', 17]]
+    block_args[2].should == [['Koyomi', 18]]
   end
 
   it 'is return value from the block as return value from the method' do
     return_value = 'return_value'
     @linker.link { |*args| return_value }
-    ('%s (%d)' % ['Koyomi', 17]).should be_equal(return_value)
+    ('%s (%d)' % ['Koyomi', 18]).should be_equal(return_value)
   end
 
   it 'is exception from the block as exception from the method' do
     @linker.link { |*args| raise 'exception' }
-    lambda { '%s (%d)' % ['Koyomi', 17] }.should raise_error('exception')
+    lambda { '%s (%d)' % ['Koyomi', 18] }.should raise_error('exception')
   end
 
   it 'returns the original method' do
@@ -70,13 +70,13 @@ describe Peeek::Hook::Instance, '#unlink' do
   end
 
   it 'defines method with the original method' do
-    call = lambda { '%s (%d)' % ['Koyomi', 17] }
+    call = lambda { '%s (%d)' % ['Koyomi', 18] }
 
     # assert
     call.should raise_error
 
     @linker.unlink(@original_method)
     call.should_not raise_error
-    call[].should == 'Koyomi (17)'
+    call[].should == 'Koyomi (18)'
   end
 end
