@@ -79,13 +79,13 @@ class Peeek
       parts << "from #{@receiver.inspect}"
 
       if @arguments.size == 1
-        parts << "with #{pretty(@arguments.first)}"
+        parts << "with #{@arguments.first.inspect}"
       elsif @arguments.size > 1
-        parts << "with (#{@arguments.map(&method(:pretty)) * ', '})"
+        parts << "with (#{@arguments.map(&:inspect) * ', '})"
       end
 
       if returned?
-        parts << "returned #{pretty(return_value)}"
+        parts << "returned #{return_value.inspect}"
       elsif raised?
         parts << "raised #{exception.inspect}"
       end
@@ -101,19 +101,6 @@ class Peeek
       _, file, line = /^(.+):(\d+)(?::in\s+|$)/.match(string).to_a
       raise ArgumentError, 'invalid as string of backtrace' unless file and line
       [file, line.to_i]
-    end
-
-    def pretty(value)
-      case value
-      when Array
-        elements = value.map(&method(:pretty))
-        "[#{elements * ', '}]"
-      when Hash
-        elements = value.map { |key, value| "#{pretty(key)} => #{pretty(value)}" }
-        "{#{elements * ', '}}"
-      else
-        value.inspect
-      end
     end
 
     class Result
