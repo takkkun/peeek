@@ -1,35 +1,51 @@
-require 'peeek/hook/base'
+require 'peeek/hook/linker'
 
 class Peeek
-  module Hook
-    class Instance < Base
-      @method_prefix = '#'
+  class Hook
+    class Instance < Linker
+      METHOD_PREFIX = '#'.freeze
 
-      def initialize(object, method_name)
-        super
-        raise ArgumentError, '' unless Hook.module?(object)
+      # @attribute [r] method_prefix
+      # @return [String] method prefix for instance method. return always "#"
+      def method_prefix
+        METHOD_PREFIX
       end
 
+      # Determine if the instance method is defined in the object.
+      #
+      # @return whether the instance method is defined in the object
       def defined?
-        object.method_defined?(method_name)
+        @object.method_defined?(@method_name)
       end
 
-      protected
-
-      def enforce
-        call = method(:call)
-
-        object.instance_method(method_name).tap do |original_method|
-          define_method do |*args|
-            call[self, caller, args]
-            original_method.bind(self)[*args]
-          end
-        end
+      # Link the hook to the instance method.
+      #
+      # @yield [backtrace, receiver, args] callback for hook
+      # @yieldparam [Array<String>] backtrace backtrace the call occurred
+      # @yieldparam [Object] receiver object that received the call
+      # @yieldparam [Array] args arguments at the call
+      # @yieldreturn [Object] return value of the original method
+      # @return [UnboundMethod] the original method
+      def link
+        raise ArgumentError, 'block not supplied' unless block_given?
+        original_method = @object.instance_method(@method_name)
+        define_method { |*args| yield caller, self, args }
+        original_method
       end
 
-      def revert(original_method)
+      # Unlink the hook from the instance method.
+      #
+      # @param [UnboundMethod] original_method original method
+      def unlink(original_method)
         define_method(original_method)
       end
+
+      private
+
+      def define_method(*args, &block)
+        @object.__send__(:define_method, @method_name, *args, &block)
+      end
+
     end
   end
 end

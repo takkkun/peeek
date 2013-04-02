@@ -1,30 +1,52 @@
-require 'peeek/hook/base'
+require 'peeek/hook/linker'
 
 class Peeek
-  module Hook
-    class Singleton < Base
-      @method_prefix = '.'
+  class Hook
+    class Singleton < Linker
+      METHOD_PREFIX = '.'.freeze
 
+      # @attribute [r] method_prefix
+      # @return [String] method prefix for singleton method. return always "."
+      def method_prefix
+        METHOD_PREFIX
+      end
+
+      # Determine if the method is defined in the object.
+      #
+      # @return whether the method is defined in the object
       def defined?
-        object.respond_to?(method_name, true)
+        @object.respond_to?(@method_name, true)
       end
 
-      protected
-
-      def enforce
-        call = method(:call)
-
-        object.method(method_name).tap do |original_method|
-          define_method do |*args|
-            call[self, caller, args]
-            original_method[*args]
-          end
-        end
+      # Link the hook to the method.
+      #
+      # @yield [backtrace, receiver, args] callback for hook
+      # @yieldparam [Array<String>] backtrace backtrace the call occurred
+      # @yieldparam [Object] receiver object that received the call
+      # @yieldparam [Array] args arguments at the call
+      # @yieldreturn [Object] return value of the original method
+      # @return [Method] original method
+      def link
+        raise ArgumentError, 'block not supplied' unless block_given?
+        original_method = @object.method(@method_name)
+        define_method { |*args| yield caller, self, args }
+        original_method
       end
 
-      def revert(original_method)
+      # Unlink the hook from the method.
+      #
+      # @param [Method] original_method original method
+      def unlink(original_method)
         define_method(&original_method)
       end
+
+      private
+
+      def define_method(&block)
+        singleton_class = class << @object; self end
+        singleton_class.__send__(:define_method, @method_name, &block)
+      end
+
     end
   end
 end

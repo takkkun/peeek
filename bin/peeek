@@ -1,63 +1,16 @@
 #!/usr/bin/env ruby
-$:.unshift(File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib')))
-
 require 'stringio'
 require 'peeek'
-
-module Hello
-  def helloworld(message)
-    print("[Module] #{message} at #{self}\n")
-  end
-end
-
-extend Hello
-
-class World
-  # def self.singleton_method_added(m)
-  #   print("Aaaaaaaa: #{m}\n")
-  # end
-
-  # def self.method_added(m)
-  #   print("Baaaaaaa: #{m}\n")
-  # end
-end
-
-targets = {
-  Hello   => :helloworld,
-  World   => [:helloworld, '.helloworld'],
-  Kernel  => %w(.print .pp),
-  $stdout => [:puts, '.hoge']
-}
 
 path = ARGV.first
 
 original_stdout = $stdout
-$stdout = StringIO.new # for have not print to the standard output
+$stdout = StringIO.new
 
 calls = begin
-          Peeek.capture(targets) do
-def $stdout.hoge
-  puts("HOOOOOOOOOOOOOOOOOOGE")
-end
-
-class World
-  def hello
-  end
-
-  def self.bye
-  end
-
-  def helloworld; end
-  def self.helloworld; end
-end
-
-helloworld 'HOGE'
-
-load path
-    end
+          Peeek.capture(String => :%) { load path } # want to be you can specify
         ensure
           $stdout = original_stdout
         end
 
 puts calls
-
