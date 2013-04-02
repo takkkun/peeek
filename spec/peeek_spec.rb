@@ -220,9 +220,9 @@ describe Peeek, '#hook' do
     @peeek.hook($stdout, :undefined_method)
     $stdout.should be_supervised_for_singleton
 
-    Kernel.should_not be_supervised_for_singleton # assert
-    @peeek.hook(Kernel, '.puts')
-    Kernel.should_not be_supervised_for_singleton
+    Regexp.should_not be_supervised_for_singleton # assert
+    @peeek.hook(Regexp, '.quote')
+    Regexp.should_not be_supervised_for_singleton
   end
 
   it "adds hooks to the registered hooks" do

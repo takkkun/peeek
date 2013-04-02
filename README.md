@@ -52,7 +52,7 @@ method.
 
     String.peeek('#%')
     $stdout.peeek('.write')
-    Kernel.peeek('.puts')
+    Regexp.peeek('.quote')
 
 Even if the method isn't defined at the time you call `Object#peeek`, enable the
 hook when the method is defined.
