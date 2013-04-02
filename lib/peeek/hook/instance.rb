@@ -15,7 +15,7 @@ class Peeek
       #
       # @return whether the instance method is defined in the object
       def defined?
-        @object.method_defined?(@method_name)
+        @object.method_defined?(@method_name) or @object.private_method_defined?(@method_name)
       end
 
       # Link the hook to the instance method.

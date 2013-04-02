@@ -17,6 +17,11 @@ describe Peeek::Hook::Instance, '#defined?' do
     linker.should be_defined
   end
 
+  it 'is true if the method is defined privately in the object' do
+    linker = sample_instance_linker(:binding)
+    linker.should be_defined
+  end
+
   it 'is false if the method is not defined in the object' do
     linker = sample_instance_linker(:undefined_method)
     linker.should_not be_defined
