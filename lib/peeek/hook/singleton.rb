@@ -43,7 +43,8 @@ class Peeek
       private
 
       def define_method(&block)
-        @object.singleton_class.__send__(:define_method, @method_name, &block)
+        singleton_class = class << @object; self end
+        singleton_class.__send__(:define_method, @method_name, &block)
       end
 
     end

@@ -264,7 +264,7 @@ describe Peeek::Hook, '#to_s' do
   context 'for singleton method' do
     it 'returns the stringified hook' do
       hook = sample_singleton_hook
-      hook.to_s.should == '#<IO:<STDOUT>>.write'
+      hook.to_s.should == "#{$stdout.inspect}.write"
     end
   end
 end
@@ -280,7 +280,7 @@ describe Peeek::Hook, '#inspect' do
   context 'for singleton method' do
     it 'inspects the hook' do
       hook = sample_singleton_hook
-      hook.inspect.should == "#<#{described_class} #<IO:<STDOUT>>.write>"
+      hook.inspect.should == "#<#{described_class} #{$stdout.inspect}.write>"
     end
   end
 
@@ -351,7 +351,7 @@ describe 'recording of a call by', Peeek::Hook do
 
     it 'raises the exception with valid backtrace' do
       line = __LINE__; exception = '%s (%d)' % ['Koyomi'] rescue $!
-      exception.backtrace.first.should =~ /^#{__FILE__}:#{line}:/
+      exception.backtrace.first.should be_start_with("#{__FILE__}:#{line}")
     end
   end
 

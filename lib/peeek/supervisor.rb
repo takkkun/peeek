@@ -106,7 +106,8 @@ class Peeek
     end
 
     def define_callback(object, &proc)
-      object.singleton_class.__send__(:define_method, @callback_name, &proc)
+      singleton_class = class << object; self end
+      singleton_class.__send__(:define_method, @callback_name, &proc)
     end
 
     def define_callbacks(callbacks)

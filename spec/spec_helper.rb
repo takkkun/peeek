@@ -50,7 +50,9 @@ class SupervisionMatcher
   def matches?(object)
     @object = object
     callback_name = {:instance => :method_added, :singleton => :singleton_method_added}[@purpose]
-    source_location = object.method(callback_name).source_location
+    method = object.method(callback_name)
+    require 'ruby18_source_location' unless method.respond_to?(:source_location)
+    source_location = method.source_location
     !!(source_location && source_location[0].include?('lib/peeek/supervisor.rb'))
   end
 

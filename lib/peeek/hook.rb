@@ -162,7 +162,10 @@ class Peeek
       method_name = method_spec.to_s.sub(/^#{Regexp.quote(method_prefix || '')}/, '').to_sym
       [linker_class, method_name]
     end
-    singleton_class.instance_eval { private :parse }
+
+    class << self
+      private :parse
+    end
 
     def call(backtrace, receiver, args)
       method = @original_method.is_a?(UnboundMethod) ? @original_method.bind(receiver) : @original_method
