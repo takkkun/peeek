@@ -57,7 +57,7 @@ method.
 Even if the method isn't defined at the time you call `Object#peeek`, enable the
 hook when the method is defined.
 
-    Kernel.peeek('.pp')
+    Kernel.peeek(:pp)
     require 'pp' # enable the hook
     pp {'Koyomi' => 18, 'Karen' => 14, 'Tsukihi' => 14}
 
