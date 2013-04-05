@@ -46,15 +46,15 @@ class Peeek
 
   # Capture all calls to hook targets.
   #
-  # @param [Hash{Module, Class, Object => String, Array<String>, Symbol, Array<Symbol>}] hook_specs
+  # @param [Hash{Module, Class, Object => String, Array<String>, Symbol, Array<Symbol>}] hook_targets
   #   an object and method specifier(s) that be target of hook
   # @yield any process that want to run to capture
   # @return [Peeek::Calls] calls that were captured in the block
-  def self.capture(hook_specs)
+  def self.capture(hook_targets)
     raise ArgumentError, 'block not supplied' unless block_given?
 
     local do
-      hook_specs.each { |object, method_specs| current.hook(object, *method_specs) }
+      hook_targets.each { |object, method_specs| current.hook(object, *method_specs) }
       yield
       current.calls
     end
