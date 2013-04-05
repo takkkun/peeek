@@ -181,7 +181,7 @@ describe Peeek, '#hook' do
     @peeek.release
   end
 
-  it "calls #{described_class}::Hook.create with the object, the method specification and the block" do
+  it "calls #{described_class}::Hook.create with the object, the method specifier and the block" do
     block = lambda { }
     Peeek::Hook.should_receive(:create).with($stdout, :write, &block).and_return(hook_stub)
     Peeek::Hook.should_receive(:create).with(Numeric, :abs, &block).and_return(hook_stub)

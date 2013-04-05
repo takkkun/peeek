@@ -47,7 +47,7 @@ class Peeek
   # Capture all calls to hook targets.
   #
   # @param [Hash{Module, Class, Object => String, Array<String>, Symbol, Array<Symbol>}] hook_specs
-  #   an object and method specification(s) that be target of hook
+  #   an object and method specifier(s) that be target of hook
   # @yield any process that want to run to capture
   # @return [Peeek::Calls] calls that were captured in the block
   def self.capture(hook_specs)
@@ -81,8 +81,8 @@ class Peeek
   # Register a hook to methods of an object.
   #
   # @param [Module, Class, Object] object a target object that hook
-  # @param [Array<String>, Array<Symbol>] method_specs method specifications of
-  #   the object. see also examples of {Peeek::Hook.create}
+  # @param [Array<String>, Array<Symbol>] method_specs method specifiers of the
+  #   object. see also examples of {Peeek::Hook.create}
   # @yield [call] process a call to the methods. give optionally
   # @yieldparam [Peeek::Call] call a call to the methods
   # @return [Peeek::Hooks] registered hooks at calling
@@ -131,8 +131,8 @@ class Peeek
 
     # Register a hook to methods of self to the current Peeek object.
     #
-    # @param [Array<String>, Array<Symbol>] method_specs method specifications
-    #   of the object. see also examples of {Peeek::Hook.create}
+    # @param [Array<String>, Array<Symbol>] method_specs method specifiers of
+    #   the object. see also examples of {Peeek::Hook.create}
     # @yield [call] process a call to the methods. give optionally
     # @yieldparam [Peeek::Call] call a call to the methods
     #
