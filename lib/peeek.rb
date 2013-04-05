@@ -7,12 +7,14 @@ require 'peeek/calls'
 class Peeek
 
   # @attribute [r] global
+  # @scope class
   # @return [Peeek] the global Peeek object
   def self.global
     @global ||= new
   end
 
   # @attribute [r] current
+  # @scope class
   # @return [Peeek] the current Peeek object
   #
   # @see Peeek.local
