@@ -11,16 +11,13 @@ class Peeek
       def self.parse(string)
         method_prefixes = METHOD_PREFIXES.sort_by(&:length).reverse.map do |method_prefix|
           index = string.rindex(method_prefix)
-          [method_prefix, method_prefix.length, index]
+          priority = index ? [index + method_prefix.length, method_prefix.length] : nil
+          [method_prefix, index, priority]
         end
 
-        # Remove non-existent method prefixes. Namely, be target that the
-        # return value of string.rindex is nil.
-        method_prefixes.reject! { |method_prefix| method_prefix[2].nil? }
-        raise ArgumentError, "method name that is target of hook isn't specified in #{hook_spec}" if method_prefixes.empty?
-
-        # Choose the method prefix longer, located further back in the string.
-        method_prefix, _, index = method_prefixes.max_by { |method_prefix| method_prefix[1..2] }
+        method_prefixes = method_prefixes.select(&:last)
+        raise ArgumentError, "method name that is target of hook isn't specified in #{string.inspect}" if method_prefixes.empty?
+        method_prefix, index = method_prefixes.max_by(&:last)
         method_prefix_range = index..(index + method_prefix.length - 1)
 
         object_name = string[0..(method_prefix_range.begin - 1)]
@@ -74,9 +71,8 @@ class Peeek
       alias eql? ==
 
       def hash
-        [@object_name, @method_prefix, @method_name].inject(self.class.hash) do |hash, value|
-          (hash << 32) + value.hash
-        end
+        values = [@object_name, @method_prefix, @method_name]
+        values.inject(self.class.hash) { |hash, value| (hash << 32) + value.hash }
       end
 
       private
@@ -88,7 +84,7 @@ class Peeek
         when *SINGLETON_METHOD_PREFIXES
           Singleton::METHOD_PREFIX
         else
-          *init, last = METHOD_PREFIXES
+          *init, last = METHOD_PREFIXES.map(&:inspect)
           method_prefixes = [init * ', ', last] * ' or '
           raise ArgumentError, "invalid method prefix, #{method_prefixes} are valid"
         end
