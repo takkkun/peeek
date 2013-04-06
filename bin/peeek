@@ -3,8 +3,6 @@ require 'peeek/cli'
 
 begin
   puts Peeek::CLI.new(ARGV).run(binding)
-rescue Peeek::CLI::Help => e
-  puts e.message
 rescue => e
   puts "peeek: #{e.message} (#{e.class})"
 end

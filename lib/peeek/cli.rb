@@ -8,7 +8,10 @@ class Peeek
     #
     # @param [Array<String>] argv arguments that is given from command line
     def initialize(argv)
-      @options = Options.parse(argv)
+      @options = Options.new(argv)
+    rescue Help => e
+      puts e.message
+      raise SystemExit
     end
 
     # @attribute [r] options
@@ -41,7 +44,7 @@ class Peeek
       $LOAD_PATH.unshift(*@options.directories_to_load)
       @options.required_libraries.each(&method(:require))
 
-      hook_targets = @options.hook_targets.materialize(binding)
+      hook_targets = materialize_hook_targets(binding)
       process = setup_to_execute(binding)
 
       begin
@@ -55,6 +58,23 @@ class Peeek
     end
 
     private
+
+    def materialize_hook_targets(binding)
+      hook_targets = @options.hook_targets.inject({}) do |hook_targets, hook_spec|
+        hook_targets[hook_spec.object_name] ||= []
+        hook_targets[hook_spec.object_name] << hook_spec.method_specifier
+        hook_targets
+      end
+
+      hook_targets = hook_targets.map do |object_name, method_specs|
+        type = binding.eval("defined? #{object_name}")
+        raise "#{object_name} is undefined" if type.nil?
+        raise "#{object_name} isn't a constant or a global variable" unless type == 'constant' || type == 'global-variable'
+        [binding.eval(object_name), method_specs]
+      end
+
+      Hash[hook_targets]
+    end
 
     def setup_to_execute(binding)
       if @options.command_given?
