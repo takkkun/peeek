@@ -6,7 +6,7 @@ describe Peeek::CLI::Options do
   describe 'deafult options' do
     subject { default_options }
 
-    if described_class.encoding_options_enabled?
+    context 'encoding options', :if => described_class.encoding_options_enabled? do
       its(:external_encoding) { should == Encoding.default_external }
       its(:internal_encoding) { should == Encoding.default_internal }
     end
@@ -73,67 +73,65 @@ describe Peeek::CLI::Options do
     end
   end
 
-  if described_class.encoding_options_enabled?
-    shared_examples_for 'accepting encoding option' do
-      let(:utf_8)    { Encoding::UTF_8    }
-      let(:us_ascii) { Encoding::US_ASCII }
+  shared_examples_for 'accepting encoding option' do
+    let(:utf_8)    { Encoding::UTF_8    }
+    let(:us_ascii) { Encoding::US_ASCII }
 
-      context 'when both external encoding and internal encoding are specifid' do
-        let(:argv) { [option, 'utf-8:us-ascii'] }
+    context 'when both external encoding and internal encoding are specifid' do
+      let(:argv) { [option, 'utf-8:us-ascii'] }
 
-        its(:external_encoding) { should == utf_8 }
-        its(:internal_encoding) { should == us_ascii }
-      end
+      its(:external_encoding) { should == utf_8 }
+      its(:internal_encoding) { should == us_ascii }
+    end
 
-      context 'when external encoding only is specified' do
-        let(:argv) { [option, 'utf-8'] }
+    context 'when external encoding only is specified' do
+      let(:argv) { [option, 'utf-8'] }
 
-        its(:external_encoding) { should == utf_8 }
-        its(:internal_encoding) { should == default_options.internal_encoding }
-      end
+      its(:external_encoding) { should == utf_8 }
+      its(:internal_encoding) { should == default_options.internal_encoding }
+    end
 
-      context 'when internal encoding only is specified' do
-        let(:argv) { [option, ':us-ascii'] }
+    context 'when internal encoding only is specified' do
+      let(:argv) { [option, ':us-ascii'] }
 
-        its(:external_encoding) { should == default_options.external_encoding }
-        its(:internal_encoding) { should == us_ascii }
-      end
+      its(:external_encoding) { should == default_options.external_encoding }
+      its(:internal_encoding) { should == us_ascii }
+    end
 
-      context 'when external encoding is unknown encoding name' do
-        let(:argv) { [option, 'undefined-encoding'] }
+    context 'when external encoding is unknown encoding name' do
+      let(:argv) { [option, 'undefined-encoding'] }
 
-        it do
-          lambda { subject }.should raise_error(ArgumentError, 'unknown encoding name - undefined-encoding')
-        end
-      end
-
-      context 'when internal encoding is unknown encoding name' do
-        let(:argv) { [option, ':undefined-encoding'] }
-
-        it do
-          lambda { subject }.should raise_error(ArgumentError, 'unknown encoding name - undefined-encoding')
-        end
-      end
-
-      context 'when encodings is omitted' do
-        let(:argv) { [option] }
-
-        it do
-          lambda { subject }.should raise_error(OptionParser::MissingArgument)
-        end
+      it do
+        lambda { subject }.should raise_error(ArgumentError, 'unknown encoding name - undefined-encoding')
       end
     end
 
-    describe '-E option' do
-      it_behaves_like 'accepting encoding option' do
-        let(:option) { '-E' }
+    context 'when internal encoding is unknown encoding name' do
+      let(:argv) { [option, ':undefined-encoding'] }
+
+      it do
+        lambda { subject }.should raise_error(ArgumentError, 'unknown encoding name - undefined-encoding')
       end
     end
 
-    describe '--encoding option' do
-      it_behaves_like 'accepting encoding option' do
-        let(:option) { '--encoding' }
+    context 'when encodings is omitted' do
+      let(:argv) { [option] }
+
+      it do
+        lambda { subject }.should raise_error(OptionParser::MissingArgument)
       end
+    end
+  end
+
+  describe '-E option', :if => described_class.encoding_options_enabled? do
+    it_behaves_like 'accepting encoding option' do
+      let(:option) { '-E' }
+    end
+  end
+
+  describe '--encoding option', :if => described_class.encoding_options_enabled? do
+    it_behaves_like 'accepting encoding option' do
+      let(:option) { '--encoding' }
     end
   end
 
