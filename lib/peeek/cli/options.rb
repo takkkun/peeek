@@ -6,11 +6,40 @@ class Peeek
   class CLI
     class Help < StandardError; end
 
+    module EncodingOptions
+
+      # @attribute external_encoding
+      # @return [Encoding] external character encoding
+      attr_reader :external_encoding
+
+      def external_encoding=(encoding)
+        @external_encoding = Encoding.find(encoding)
+      end
+
+      # @attribute internal_encoding
+      # @return [Encoding] internal character encoding
+      attr_reader :internal_encoding
+
+      def internal_encoding=(encoding)
+        @internal_encoding = Encoding.find(encoding)
+      end
+
+    end
+
     class Options
 
       SILENCE = 0
       MEDIUM  = 1
       VERBOSE = 2
+
+      include EncodingOptions if defined? Encoding
+
+      # Determine if CLI options class has enable encoding options.
+      #
+      # @return whether CLI options class has enable encoding options
+      def self.encoding_options_enabled?
+        include?(EncodingOptions)
+      end
 
       # Initialize the CLI options.
       #
@@ -42,18 +71,20 @@ class Peeek
           commands << command
         end
 
-        @external_encoding = Encoding.default_external
-        @internal_encoding = Encoding.default_internal
+        if self.class.encoding_options_enabled?
+          @external_encoding = Encoding.default_external
+          @internal_encoding = Encoding.default_internal
 
-        opt.on('-Eex[:in]', '--encoding=ex[:in]', 'specify the default external and internal character encodings') do |encodings|
-          external_encoding, internal_encoding = parse_encodings(encodings)
-          @external_encoding = external_encoding if external_encoding
-          @internal_encoding = internal_encoding
+          opt.on('-Eex[:in]', '--encoding=ex[:in]', 'specify the default external and internal character encodings') do |encodings|
+            external_encoding, internal_encoding = parse_encodings(encodings)
+            @external_encoding = external_encoding if external_encoding
+            @internal_encoding = internal_encoding
+          end
         end
 
         @hook_targets = []
 
-        opt.on('-Hstring', "object and method name that is target of hook") do |string|
+        opt.on('-Hstring', 'object and method name that is target of hook') do |string|
           hook_spec = Hook::Specifier.parse(string)
           @hook_targets << hook_spec unless @hook_targets.include?(hook_spec)
         end
@@ -97,22 +128,6 @@ class Peeek
 
         @arguments = opt.order(argv)
         @command = commands * '; '
-      end
-
-      # @attribute external_encoding
-      # @return [Encoding] external character encoding
-      attr_reader :external_encoding
-
-      def external_encoding=(encoding)
-        @external_encoding = Encoding.find(encoding)
-      end
-
-      # @attribute internal_encoding
-      # @return [Encoding] internal character encoding
-      attr_reader :internal_encoding
-
-      def internal_encoding=(encoding)
-        @internal_encoding = Encoding.find(encoding)
       end
 
       # @attribute debug
@@ -182,5 +197,6 @@ class Peeek
       end
 
     end
+
   end
 end
