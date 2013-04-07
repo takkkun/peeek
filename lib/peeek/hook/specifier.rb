@@ -84,7 +84,8 @@ class Peeek
         when *SINGLETON_METHOD_PREFIXES
           Singleton::METHOD_PREFIX
         else
-          *init, last = METHOD_PREFIXES.map(&:inspect)
+          init = METHOD_PREFIXES.map(&:inspect)
+          last = init.pop
           method_prefixes = [init * ', ', last] * ' or '
           raise ArgumentError, "invalid method prefix, #{method_prefixes} are valid"
         end
