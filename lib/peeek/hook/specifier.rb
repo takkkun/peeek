@@ -19,9 +19,12 @@ class Peeek
         raise ArgumentError, "method name that is target of hook isn't specified in #{string.inspect}" if method_prefixes.empty?
         method_prefix, index = method_prefixes.max_by(&:last)
         method_prefix_range = index..(index + method_prefix.length - 1)
+        string_range = 0..(string.length - 1)
+        raise ArgumentError, "object name should not be empty for #{string.inspect}" unless string_range.begin < method_prefix_range.begin
+        raise ArgumentError, "method name should not be empty for #{string.inspect}" unless method_prefix_range.end < string_range.end
 
-        object_name = string[0..(method_prefix_range.begin - 1)]
-        method_name = string[(method_prefix_range.end + 1)..-1].to_sym
+        object_name = string[string_range.begin..(method_prefix_range.begin - 1)]
+        method_name = string[(method_prefix_range.end + 1)..string_range.end].to_sym
         new(object_name, method_prefix, method_name)
       end
 

@@ -8,7 +8,7 @@ describe Peeek::Hook::Specifier do
     hash.should     be_key(described_class.parse('String#%'))
     hash.should_not be_key(described_class.parse('String#index'))
     hash.should_not be_key(described_class.parse('Regexp#%'))
-    hash.should_not be_key(described_class.parse('String.#'))
+    hash.should_not be_key(described_class.parse('String.%'))
   end
 
   describe '.parse' do
@@ -49,6 +49,22 @@ describe Peeek::Hook::Specifier do
         expect { subject }.to raise_error(ArgumentError, %(method name that is target of hook isn't specified in "String"))
       end
     end
+
+    context 'when an object name is empty' do
+      subject { described_class.parse('#%') }
+
+      it do
+        expect { subject }.to raise_error(ArgumentError, %(object name should not be empty for "#%"))
+      end
+    end
+
+    context 'when a method name is empty' do
+      subject { described_class.parse('String#') }
+
+      it do
+        expect { subject }.to raise_error(ArgumentError, %(method name should not be empty for "String#"))
+      end
+    end
   end
 
   describe '#initialize' do
@@ -85,7 +101,7 @@ describe Peeek::Hook::Specifier do
     it { should     == described_class.parse('String#%') }
     it { should_not == described_class.parse('String#index') }
     it { should_not == described_class.parse('Regexp#%') }
-    it { should_not == described_class.parse('String.#') }
+    it { should_not == described_class.parse('String.%') }
     it { should_not == 'String#%' }
   end
 end
