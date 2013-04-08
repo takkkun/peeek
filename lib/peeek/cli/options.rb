@@ -118,8 +118,11 @@ class Peeek
           @verbose = verbose_by(level || VERBOSE)
         end
 
+        @continued = true
+
         opt.on('--version', 'print the version') do
           @version_requested = true
+          @continued = false
         end
 
         opt.on_tail('-h', '--help', 'show this message') do
@@ -181,6 +184,13 @@ class Peeek
       # @return whether arguments given
       def arguments_given?
         !@arguments.empty?
+      end
+
+      # Determine if continue process.
+      #
+      # @return whether continue process
+      def continued?
+        @continued
       end
 
       private

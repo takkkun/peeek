@@ -285,6 +285,7 @@ describe Peeek::CLI::Options do
     let(:argv) { %w(--version) }
 
     it { should be_version_requested }
+    it { should_not be_continued }
   end
 
   shared_examples_for 'accepting help option' do
