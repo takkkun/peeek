@@ -6,6 +6,7 @@ class Peeek
       class << self
 
         # @attribute [r] classes
+        # @scope class
         # @return [Array<Class>] classes valid as linker
         attr_reader :classes
 

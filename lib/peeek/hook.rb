@@ -33,7 +33,7 @@ class Peeek
     #     # => #<Peeek::Hook #<IO:<STDOUT>>.puts>
     #
     # @param [Module, Class, Object] object a target object that hook
-    # @param [String, Symbol] method_spec method specification of the object
+    # @param [String, Symbol] method_spec method specifier of the object
     # @yield [call] process a call to the method. give optionally
     # @yieldparam [Peeek::Call] call a call to the method
     # @return [Peeek::Hook] a hook to the method of the object

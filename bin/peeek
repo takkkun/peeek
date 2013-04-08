@@ -1,16 +1,8 @@
 #!/usr/bin/env ruby
-require 'stringio'
-require 'peeek'
+require 'peeek/cli'
 
-path = ARGV.first
-
-original_stdout = $stdout
-$stdout = StringIO.new
-
-calls = begin
-          Peeek.capture(String => :%) { load path } # want to be you can specify
-        ensure
-          $stdout = original_stdout
-        end
-
-puts calls
+begin
+  puts Peeek::CLI.new($stdin, $stdout, ARGV).run(binding)
+rescue => e
+  puts "peeek: #{e.message} (#{e.class})"
+end
