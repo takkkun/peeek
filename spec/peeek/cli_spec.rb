@@ -59,7 +59,7 @@ describe Peeek::CLI do
       eval("#{expr} = value")
     end
 
-    it 'sets options.external_encoding to Encoding.default_external' do
+    it 'sets options.external_encoding to Encoding.default_external', :if => Peeek::CLI::Options.encoding_options_enabled? do
       cli = cli('print Encoding.default_external') do |options|
         options.external_encoding = 'utf-8'
       end
@@ -70,7 +70,7 @@ describe Peeek::CLI do
       end
     end
 
-    it 'sets options.internal_encoding to Encoding.default_internal' do
+    it 'sets options.internal_encoding to Encoding.default_internal', :if => Peeek::CLI::Options.encoding_options_enabled? do
       cli = cli('print Encoding.default_internal') do |options|
         options.internal_encoding = 'us-ascii'
       end

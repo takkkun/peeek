@@ -28,8 +28,10 @@ class Peeek
     # @param [Binding] binding context that runs the command or the program file
     # @return [Peeek::Calls] captured calls
     def run(binding)
-      Encoding.default_external = @options.external_encoding
-      Encoding.default_internal = @options.internal_encoding
+      if Options.encoding_options_enabled?
+        Encoding.default_external = @options.external_encoding
+        Encoding.default_internal = @options.internal_encoding
+      end
 
       $DEBUG   = @options.debug
       $VERBOSE = @options.verbose
