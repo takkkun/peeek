@@ -19,6 +19,11 @@ describe Peeek::CLI::Options do
     its(:hook_targets)        { should == [] }
     its(:command)             { should == '' }
     its(:arguments)           { should == [] }
+
+    it { should_not be_version_requested }
+    it { should_not be_command_given }
+    it { should_not be_arguments_given }
+    it { should be_continued }
   end
 
   subject { described_class.new(argv) }
