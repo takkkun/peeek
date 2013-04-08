@@ -6,34 +6,28 @@ class Peeek
 
     # Initialize the CLI object.
     #
+    # @param [IO] input source to input
+    # @param [IO] output destination to output the execution result
     # @param [Array<String>] argv arguments that is given from command line
-    def initialize(argv)
+    def initialize(input, output, argv)
+      @input   = input
+      @output  = output
       @options = Options.new(argv)
     rescue Help => e
-      puts e.message
-      raise SystemExit
+      output.puts(e.message)
+      exit
     end
 
     # @attribute [r] options
     # @return [Peeek::CLI::Options] options to run from CLI
     attr_reader :options
 
-    # Determine if
-    #
-    # @return whether
-    def runnable?
-      @options.version_requested? or @options.command_given? or @options.arguments_given?
-    end
-
     # Run the command or the program file with a binding. And capture calls
     # that raised when running it.
     #
-    # @param [Binding] binding context that runs the command or the program
-    #   file
+    # @param [Binding] binding context that runs the command or the program file
     # @return [Peeek::Calls] captured calls
     def run(binding)
-      raise '' unless runnable?
-
       Encoding.default_external = @options.external_encoding
       Encoding.default_internal = @options.internal_encoding
 
@@ -47,13 +41,18 @@ class Peeek
       hook_targets = materialize_hook_targets(binding)
       process = setup_to_execute(binding)
 
+      @output.puts("peeek-#{VERSION}") if @options.version_requested?
+
+      original_stdout = $stdout
+      $stdout = @output
+
       begin
-        puts "peeek-#{VERSION}" if @options.version_requested?
         Peeek.capture(hook_targets, &process)
       rescue => e
-        backtrace = e.backtrace.take_while { |line| line !~ %r{lib/peeek/cli\.rb} }
-        e.set_backtrace(backtrace)
+        e.set_backtrace(e.backtrace.reject { |line| line =~ %r{lib/peeek} })
         raise e
+      ensure
+        $stdout = original_stdout
       end
     end
 
@@ -77,21 +76,21 @@ class Peeek
     end
 
     def setup_to_execute(binding)
-      if @options.command_given?
-        set_argv(@options.arguments.dup)
-        lambda { binding.eval(@options.command, '-e', 1) }
-      elsif @options.arguments_given?
+      if @options.command_given? and @options.continued?
+        process_for { binding.eval(@options.command, '-e', 1) }
+      elsif @options.arguments_given? and @options.continued?
         path, *argv = @options.arguments
-        set_argv(argv)
-        lambda { load path }
+        process_for(argv) { load path }
+      elsif @options.version_requested?
+        process_for { }
       else
-        set_argv(@options.arguments.dup)
-        lambda { }
+        process_for { binding.eval(@input.read, '-', 1) }
       end
     end
 
-    def set_argv(argv)
+    def process_for(argv = @options.arguments.dup, &process)
       ARGV[0, ARGV.length] = argv
+      process
     end
 
   end

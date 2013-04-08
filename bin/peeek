@@ -2,7 +2,7 @@
 require 'peeek/cli'
 
 begin
-  puts Peeek::CLI.new(ARGV).run(binding)
+  puts Peeek::CLI.new($stdin, $stdout, ARGV).run(binding)
 rescue => e
   puts "peeek: #{e.message} (#{e.class})"
 end
