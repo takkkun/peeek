@@ -96,7 +96,7 @@ Hook to methods at head of the block, and return the calls, then use
 
 ### Filter calls
 
-`Peeek#calls` or `Peeek.local` return an instance of `Peeek::Calls`. It has
+`Peeek#calls` or `Peeek.capture` return an instance of `Peeek::Calls`. It has
 implemented methods to filter by attributes of the call.
 
     require 'peeek'
