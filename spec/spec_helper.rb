@@ -24,7 +24,7 @@ end
 
 def instance_linker_stub(object, method_name)
   original_method = object.instance_method(method_name)
-  linker = stub('Peeek::Hook::Linker', :link => original_method, :unlink => nil)
+  linker = stub('Peeek::Hook::Linker', :target_method => original_method, :link => nil, :unlink => nil)
   [linker, original_method]
 end
 

@@ -11,6 +11,12 @@ class Peeek
         METHOD_PREFIX
       end
 
+      # @attribute [r] target_method
+      # @return [Method] the method of the object
+      def target_method
+        @object.method(@method_name)
+      end
+
       # Determine if the method is defined in the object.
       #
       # @return whether the method is defined in the object
@@ -25,12 +31,9 @@ class Peeek
       # @yieldparam [Object] receiver object that received the call
       # @yieldparam [Array] args arguments at the call
       # @yieldreturn [Object] return value of the original method
-      # @return [Method] original method
       def link
         raise ArgumentError, 'block not supplied' unless block_given?
-        original_method = @object.method(@method_name)
         define_method { |*args| yield caller, self, args }
-        original_method
       end
 
       # Unlink the hook from the method.

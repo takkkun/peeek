@@ -118,7 +118,11 @@ class Peeek
 
     # Link the hook to the method.
     def link
-      @original_method = @linker.link(&method(:call)) unless linked?
+      unless linked?
+        @original_method = @linker.target_method
+        @linker.link(&method(:call))
+      end
+
       self
     end
 
