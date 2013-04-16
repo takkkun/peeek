@@ -11,6 +11,15 @@ describe Peeek::Hook::Singleton, '#method_prefix' do
   end
 end
 
+describe Peeek::Hook::Singleton, '#target_method' do
+  it 'returns the method of the object' do
+    linker = sample_singleton_linker
+    method = linker.target_method
+    method.receiver.should == Regexp
+    method.name.should == :quote
+  end
+end
+
 describe Peeek::Hook::Singleton, '#defined?' do
   it 'is true if the method is defined in the object' do
     linker = sample_singleton_linker
@@ -51,10 +60,6 @@ describe Peeek::Hook::Singleton, '#link' do
   it 'is exception from the block as exception from the method' do
     @linker.link { |*args| raise 'exception' }
     lambda { Regexp.quote('.') }.should raise_error('exception')
-  end
-
-  it 'returns the original method' do
-    @linker.link { }.should == @original_method
   end
 
   it 'raises ArgumentError if a block not given' do

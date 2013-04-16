@@ -182,6 +182,14 @@ describe Peeek::Hook, '#link' do
     @hook.link
   end
 
+  it "is linked before call #{described_class}::Linker#link" do
+    @linker.stub!(:link).with { }.and_return do |&block|
+      @hook.should be_linked
+    end
+
+    @hook.link
+  end
+
   it 'links the hook to the method' do
     @hook.should_not be_linked # assert
     @hook.link
