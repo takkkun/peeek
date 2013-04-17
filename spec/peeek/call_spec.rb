@@ -3,8 +3,9 @@ require 'peeek/call'
 def sample_call(attrs = {})
   hook   = attrs[:hook] || stub('Peeek::Hook', :to_s => 'String#%')
   args   = attrs[:args] || ['Koyomi', 18]
+  block  = attrs.key?(:block) ? attrs[:block] : lambda { }
   result = attrs[:result] || Peeek::Call::ReturnValue.new('Koyomi (18)')
-  Peeek::Call.new(hook, sample_backtrace, '%s (%d)', args, result)
+  Peeek::Call.new(hook, sample_backtrace, '%s (%d)', args, block, result)
 end
 
 def sample_backtrace
@@ -68,6 +69,14 @@ describe Peeek::Call, '#arguments' do
   end
 end
 
+describe Peeek::Call, '#block' do
+  it 'returns the value when constructed the call' do
+    block = lambda { }
+    call = sample_call(:block => block)
+    call.block.should == block
+  end
+end
+
 describe Peeek::Call, '#result' do
   it 'returns the value when constructed the call' do
     result = sample_return_value
@@ -128,35 +137,49 @@ describe Peeek::Call, '#to_s' do
   context 'with no arguments' do
     it 'returns the stringified call' do
       call = sample_call(:args => [])
-      call.to_s.should == 'String#% from "%s (%d)" returned "Koyomi (18)" in koyomi.rb at 7'
+      call.to_s.should == 'String#% from "%s (%d)" with a block returned "Koyomi (18)" in koyomi.rb at 7'
     end
   end
 
   context 'with an argument' do
     it 'returns the stringified call' do
       call = sample_call(:args => [:arg])
-      call.to_s.should == 'String#% from "%s (%d)" with :arg returned "Koyomi (18)" in koyomi.rb at 7'
+      call.to_s.should == 'String#% from "%s (%d)" with :arg and a block returned "Koyomi (18)" in koyomi.rb at 7'
     end
   end
 
   context 'with multiple arguments' do
     it 'returns the stringified call' do
       call = sample_call(:args => [:arg1, :arg2])
-      call.to_s.should == 'String#% from "%s (%d)" with (:arg1, :arg2) returned "Koyomi (18)" in koyomi.rb at 7'
+      call.to_s.should == 'String#% from "%s (%d)" with (:arg1, :arg2) and a block returned "Koyomi (18)" in koyomi.rb at 7'
+    end
+  end
+
+  context 'with no block' do
+    it 'returns the stringified call' do
+      call = sample_call(:block => nil)
+      call.to_s.should == 'String#% from "%s (%d)" with ("Koyomi", 18) returned "Koyomi (18)" in koyomi.rb at 7'
+    end
+  end
+
+  context 'with a block' do
+    it 'returns the stringified call' do
+      call = sample_call(:block => lambda { })
+      call.to_s.should == 'String#% from "%s (%d)" with ("Koyomi", 18) and a block returned "Koyomi (18)" in koyomi.rb at 7'
     end
   end
 
   context 'with a return value result' do
     it 'returns the stringified call' do
       call = sample_call(:result => sample_return_value)
-      call.to_s.should == 'String#% from "%s (%d)" with ("Koyomi", 18) returned :return_value in koyomi.rb at 7'
+      call.to_s.should == 'String#% from "%s (%d)" with ("Koyomi", 18) and a block returned :return_value in koyomi.rb at 7'
     end
   end
 
   context 'with an exception result' do
     it 'returns the stringified call' do
       call = sample_call(:result => sample_exception)
-      call.to_s.should == 'String#% from "%s (%d)" with ("Koyomi", 18) raised :exception in koyomi.rb at 7'
+      call.to_s.should == 'String#% from "%s (%d)" with ("Koyomi", 18) and a block raised :exception in koyomi.rb at 7'
     end
   end
 end

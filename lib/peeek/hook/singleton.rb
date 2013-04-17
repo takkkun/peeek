@@ -33,7 +33,7 @@ class Peeek
       # @yieldreturn [Object] return value of the original method
       def link
         raise ArgumentError, 'block not supplied' unless block_given?
-        define_method { |*args| yield caller, self, args }
+        define_method { |*args, &block| yield caller, self, args, block }
       end
 
       # Unlink the hook from the method.

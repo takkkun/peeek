@@ -171,19 +171,23 @@ class Peeek
       private :parse
     end
 
-    def call(backtrace, receiver, args)
+    def call(backtrace, receiver, args, block)
       method = @original_method.is_a?(UnboundMethod) ? @original_method.bind(receiver) : @original_method
 
       result = begin
                  Call::ReturnValue.new(method[*args])
-               rescue => e
+               rescue Exception => e
                  e.set_backtrace(backtrace)
                  Call::Exception.new(e)
                end
 
-      call = Call.new(self, backtrace, receiver, args, result)
-      @calls << call
-      @process[call] if @process
+      call = Call.new(self, backtrace, receiver, args, block, result)
+
+      unless call.file =~ %r(lib/peeek(?:\.rb|/))
+        @calls << call
+        @process[call] if @process
+      end
+
       raise call.exception if call.raised?
       call.return_value
     end

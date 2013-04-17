@@ -3,6 +3,18 @@ Peeek
 
 Peeek peeks at calls of a method
 
+Get started quickly
+-------------------
+
+Peeek has command line interface, you can get started quickly after installed.
+
+    $ gem install peeek
+    $ peeek -H'String#%' -e 'puts "%s (%d)" % ["Koyomi", 18]'
+    Koyomi (18)
+    String#% from "%s (%d)" with ["Koyomi", 18] returned "Koyomi (18)" in -e at 1
+
+See at the details on using by `peeek -h`.
+
 Installation
 ------------
 
