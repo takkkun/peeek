@@ -357,6 +357,22 @@ describe 'recording of a call by', Peeek::Hook do
       exception.should equal(call.exception)
     end
 
+    it 'handles critical exception (inherited Exception)' do
+      hook = Peeek::Hook.create(Kernel, :require)
+      hook.link
+
+      exception = begin
+                    require 'undefined_library'
+                  rescue LoadError => e
+                    e
+                  end
+
+      call = hook.calls.first
+      exception.should equal(call.exception)
+
+      hook.unlink
+    end
+
     it 'raises the exception with valid backtrace' do
       line = __LINE__; exception = '%s (%d)' % ['Koyomi'] rescue $!
       exception.backtrace.first.should be_start_with("#{__FILE__}:#{line}")

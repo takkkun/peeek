@@ -176,7 +176,7 @@ class Peeek
 
       result = begin
                  Call::ReturnValue.new(method[*args])
-               rescue => e
+               rescue Exception => e
                  e.set_backtrace(backtrace)
                  Call::Exception.new(e)
                end
