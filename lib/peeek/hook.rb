@@ -171,7 +171,7 @@ class Peeek
       private :parse
     end
 
-    def call(backtrace, receiver, args)
+    def call(backtrace, receiver, args, block)
       method = @original_method.is_a?(UnboundMethod) ? @original_method.bind(receiver) : @original_method
 
       result = begin
@@ -181,7 +181,7 @@ class Peeek
                  Call::Exception.new(e)
                end
 
-      call = Call.new(self, backtrace, receiver, args, result)
+      call = Call.new(self, backtrace, receiver, args, block, result)
       @calls << call
       @process[call] if @process
       raise call.exception if call.raised?

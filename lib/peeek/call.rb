@@ -7,14 +7,16 @@ class Peeek
     # @param [Array<String>] backtrace backtrace the call occurred
     # @param [Module, Class, Object] receiver object that received the call
     # @param [Array] arguments arguments at the call
+    # @param [Proc] block block at the call
     # @param [Peeek::Call::Result] result result of the call
-    def initialize(hook, backtrace, receiver, arguments, result)
+    def initialize(hook, backtrace, receiver, arguments, block, result)
       raise ArgumentError, 'invalid as result' unless result.is_a?(Result)
       @hook = hook
       @backtrace = backtrace
       @file, @line = extract_file_and_line(backtrace.first)
       @receiver = receiver
       @arguments = arguments
+      @block = block
       @result = result
     end
 
@@ -41,6 +43,10 @@ class Peeek
     # @attribute [r] arguments
     # @return [Array] arguments at the call
     attr_reader :arguments
+
+    # @attribute [r] block
+    # @return [Proc] block at the call
+    attr_reader :block
 
     # @attribute [r] result
     # @return [Peeek::Call::Result] result of the call
@@ -82,6 +88,11 @@ class Peeek
         parts << "with #{@arguments.first.inspect}"
       elsif @arguments.size > 1
         parts << "with (#{@arguments.map(&:inspect) * ', '})"
+      end
+
+      if @block
+        conjunction = @arguments.empty? ? 'with' : 'and'
+        parts << "#{conjunction} a block"
       end
 
       if returned?

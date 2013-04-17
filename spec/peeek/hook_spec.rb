@@ -175,7 +175,7 @@ describe Peeek::Hook, '#link' do
 
   it "calls #{described_class}::Linker#link with the block" do
     @linker.should_receive(:link).with { }.and_return do |&block|
-      block.arity.should == 3
+      block.arity.should == 4
       @original_method
     end
 
@@ -319,12 +319,14 @@ describe 'recording of a call by', Peeek::Hook do
   end
 
   it 'sets attributes to the call' do
-    line = __LINE__; '%s (%d)' % ['Koyomi', 18]
+    block = lambda { }
+    line = __LINE__; '%s (%d)'.%(['Koyomi', 18], &block)
     call = @hook.calls.first
     call.file.should == __FILE__
     call.line.should == line
     call.receiver.should == '%s (%d)'
     call.arguments.should == [['Koyomi', 18]]
+    call.block.should eq(block)
   end
 
   context 'if a value returned' do
