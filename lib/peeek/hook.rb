@@ -182,8 +182,12 @@ class Peeek
                end
 
       call = Call.new(self, backtrace, receiver, args, block, result)
-      @calls << call
-      @process[call] if @process
+
+      unless call.file =~ %r(lib/peeek(?:\.rb|/))
+        @calls << call
+        @process[call] if @process
+      end
+
       raise call.exception if call.raised?
       call.return_value
     end
