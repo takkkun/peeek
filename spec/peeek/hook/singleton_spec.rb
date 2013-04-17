@@ -16,7 +16,7 @@ describe Peeek::Hook::Singleton, '#target_method' do
     linker = sample_singleton_linker
     method = linker.target_method
     method.receiver.should == Regexp
-    method.name.should == :quote
+    method.name.to_sym.should == :quote
   end
 end
 

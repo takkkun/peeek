@@ -16,7 +16,7 @@ describe Peeek::Hook::Instance, '#target_method' do
     linker = sample_instance_linker
     method = linker.target_method
     method.owner.should == String
-    method.name.should == :%
+    method.name.to_sym.should == :%
   end
 end
 
